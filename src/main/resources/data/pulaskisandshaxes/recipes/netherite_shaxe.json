@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+	"#W#",
+	" / ",
+	" / "
+  ],
+  "key": {
+	"#": {
+	  "item": "minecraft:netherite_ingot"
+	},
+	"W": {
+	  "item": "minecraft:netherite_shovel"
+	},
+	"/": {
+	  "item": "minecraft:stick"
+	}
+  },
+  "result": {
+	"item": "pulaskisandshaxes:netherite_shaxe",
+	"count": 1
+  },
+  "group": "Shaxes"
+}

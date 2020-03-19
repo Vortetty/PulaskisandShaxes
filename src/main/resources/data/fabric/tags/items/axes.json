@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+	"pulaskisandshaxes:wooden_pulaski",
+	"pulaskisandshaxes:stone_pulaski",
+	"pulaskisandshaxes:iron_pulaski",
+	"pulaskisandshaxes:gold_pulaski",
+	"pulaskisandshaxes:diamond_pulaski",
+	"pulaskisandshaxes:netherite_pulaski"
+  ]
+}

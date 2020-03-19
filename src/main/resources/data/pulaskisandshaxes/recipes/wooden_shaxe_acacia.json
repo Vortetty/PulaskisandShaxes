@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+	"#W#",
+	" / ",
+	" / "
+  ],
+  "key": {
+	"#": {
+	  "item": "minecraft:acacia_planks"
+	},
+	"W": {
+	  "item": "minecraft:wooden_shovel"
+	},
+	"/": {
+	  "item": "minecraft:stick"
+	}
+  },
+  "result": {
+	"item": "pulaskisandshaxes:wooden_shaxe",
+	"count": 1
+  },
+  "group": "Shaxes"
+}

@@ -1,12 +1,14 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.fabricmc.example.mixin",
+  "package": "net.vortetty.pulaskisandshaxes.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "AxeItemAccessor",
+    "HoeItemAccessor",
+    "ShovelItemAccessor"
   ],
   "client": [
-    "ExampleMixin"
   ],
   "injectors": {
     "defaultRequire": 1

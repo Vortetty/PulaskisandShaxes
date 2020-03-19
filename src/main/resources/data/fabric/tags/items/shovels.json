@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+	"pulaskisandshaxes:wooden_shaxe",
+	"pulaskisandshaxes:stone_shaxe",
+	"pulaskisandshaxes:iron_shaxe",
+	"pulaskisandshaxes:gold_shaxe",
+	"pulaskisandshaxes:diamond_shaxe",
+	"pulaskisandshaxes:netherite_shaxe"
+  ]
+}

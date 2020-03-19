@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+	"#W#",
+	" / ",
+	" / "
+  ],
+  "key": {
+	"#": {
+	  "item": "minecraft:stone"
+	},
+	"W": {
+	  "item": "minecraft:stone_shovel"
+	},
+	"/": {
+	  "item": "minecraft:stick"
+	}
+  },
+  "result": {
+	"item": "pulaskisandshaxes:stone_shaxe",
+	"count": 1
+  },
+  "group": "Shaxes"
+}
