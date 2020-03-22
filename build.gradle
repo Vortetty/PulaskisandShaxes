@@ -5,6 +5,15 @@ plugins {
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+	maven {
+		url = 'https://raw.githubusercontent.com/Devan-Kerman/Devan-Repo/master/'
+	}
+}
 
 dependencies {
 	minecraft "com.mojang:minecraft:20w11a"
@@ -13,6 +22,10 @@ dependencies {
 
 	//Fabric api
 	modImplementation "net.fabricmc.fabric-api:fabric-api:0.5.3+build.308-1.16"
+
+	// rrp
+	modCompile group: 'net.devtech', name: 'rrp', version: '2.0.1'
+	include group: 'net.devtech', name: 'rrp', version: '2.0.1'
 }
 
 processResources {
@@ -45,6 +58,14 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 jar {
 	from "LICENSE"
+	sourceSets {
+		main {
+			java {
+				exclude 'assets/pulaskisandshaxes/textures/item/test.bat'
+				exclude 'assets/pulaskisandshaxes/textures/item/test.py'
+			}
+		}
+	}
 }
 
 // configure the maven publication
@@ -63,7 +84,15 @@ publishing {
 
 	// select the repositories you want to publish to
 	repositories {
+		File gh = new File("C:/Users/vorte/mods/PulaskisAndShaxes/maven")
+		System.out.println(gh)
+		if(gh.exists()) {
+			maven {
+				url = gh.absolutePath
+			}
+		}
 		// uncomment to publish to the local maven
 		// mavenLocal()
 	}
+
 }

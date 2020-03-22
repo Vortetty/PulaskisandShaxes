@@ -1,8 +1,8 @@
 {
   "type": "minecraft:crafting_shaeless",
   "ingredients": [
-	"pulaskisandshaxes:diamond_shaxe",
-	"minecraft:netherite_ingot"
+	{"item": "pulaskisandshaxes:diamond_shaxe"},
+	{"item": "minecraft:netherite_ingot"}
   ],
   "result": {
 	"item": "pulaskisandshaxes:netherite_shaxe",

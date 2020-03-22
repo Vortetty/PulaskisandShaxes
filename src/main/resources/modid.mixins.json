@@ -4,13 +4,14 @@
   "package": "net.vortetty.pulaskisandshaxes.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "AxeItemAccessor",
-    "HoeItemAccessor",
-    "ShovelItemAccessor"
+	"AxeItemAccessor",
+	"HoeItemAccessor",
+	"musicOverrideMixin",
+	"ShovelItemAccessor"
   ],
   "client": [
   ],
   "injectors": {
-    "defaultRequire": 1
+	"defaultRequire": 1
   }
 }

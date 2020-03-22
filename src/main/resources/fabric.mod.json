@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "pulaskisandshaxes",
-  "version": "${version}",
+  "version": "1.1.2",
 
-  "name": "Enderite",
+  "name": "Pulaskis and Shaxes",
   "description": "Polaskys, Shaxes and more",
   "authors": [
     "Vortetty"
@@ -11,11 +11,14 @@
   "contact": {
   },
 
-  "license": "CC0-1.0",
+  "license": "CC BY-NC-SA 4.0 International",
   "icon": "assets//logo.png",
 
   "environment": "*",
   "entrypoints": {
+    "rrp_pre": [
+      "net.vortetty.pulaskisandshaxes.gens.Entrypoint"
+    ],
     "main": [
       "net.vortetty.pulaskisandshaxes.pulaskisandshaxes"
     ]
