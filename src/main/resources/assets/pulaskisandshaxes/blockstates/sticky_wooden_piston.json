@@ -1,0 +1,50 @@
+{
+  "variants": {
+	"extended=false,facing=down": {
+	  "x": 90,
+	  "model": "pulaskisandshaxes:block/sticky_wooden_piston"
+	},
+	"extended=false,facing=east": {
+	  "y": 90,
+	  "model": "pulaskisandshaxes:block/sticky_wooden_piston"
+	},
+	"extended=false,facing=north": {
+	  "model": "pulaskisandshaxes:block/sticky_wooden_piston"
+	},
+	"extended=false,facing=south": {
+	  "y": 180,
+	  "model": "pulaskisandshaxes:block/sticky_wooden_piston"
+	},
+	"extended=false,facing=up": {
+	  "x": 270,
+	  "model": "pulaskisandshaxes:block/sticky_wooden_piston"
+	},
+	"extended=false,facing=west": {
+	  "y": 270,
+	  "model": "pulaskisandshaxes:block/sticky_wooden_piston"
+	},
+	"extended=true,facing=down": {
+	  "x": 90,
+	  "model": "pulaskisandshaxes:base/wooden_base"
+	},
+	"extended=true,facing=east": {
+	  "y": 90,
+	  "model": "pulaskisandshaxes:base/wooden_base"
+	},
+	"extended=true,facing=north": {
+	  "model": "pulaskisandshaxes:base/wooden_base"
+	},
+	"extended=true,facing=south": {
+	  "y": 180,
+	  "model": "pulaskisandshaxes:base/wooden_base"
+	},
+	"extended=true,facing=up": {
+	  "x": 270,
+	  "model": "pulaskisandshaxes:base/wooden_base"
+	},
+	"extended=true,facing=west": {
+	  "y": 270,
+	  "model": "pulaskisandshaxes:base/wooden_base"
+	}
+  }
+}

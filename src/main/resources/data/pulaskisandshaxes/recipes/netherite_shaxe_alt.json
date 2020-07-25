@@ -1,5 +1,5 @@
 {
-  "type": "minecraft:crafting_shaeless",
+  "type": "minecraft:crafting_shapeless",
   "ingredients": [
 	{"item": "pulaskisandshaxes:diamond_shaxe"},
 	{"item": "minecraft:netherite_ingot"}

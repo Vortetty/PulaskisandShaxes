@@ -23,3 +23,9 @@ bin/
 # fabric
 
 run/
+/maven/*
+/maven/*/*
+/maven/*/*/*
+/maven/*/*/*/*
+/maven/*/*/*/*/*
+/maven/*/*/*/*/*/*

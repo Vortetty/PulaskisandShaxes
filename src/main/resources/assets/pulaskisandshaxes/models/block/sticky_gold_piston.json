@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_piston",
+  "textures": {
+	"platform": "minecraft:block/piston_top_sticky",
+	"bottom": "pulaskisandshaxes:block/gold_piston_bottom",
+	"side": "pulaskisandshaxes:block/gold_piston_side"
+  }
+}

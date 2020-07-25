@@ -1,0 +1,8 @@
+{
+  "parent": "block/piston_extended",
+  "textures": {
+	"bottom": "pulaskisandshaxes:block/netherite_piston_bottom",
+	"side": "pulaskisandshaxes:block/netherite_piston_side",
+	"inside": "pulaskisandshaxes:block/netherite_piston_inner"
+  }
+}

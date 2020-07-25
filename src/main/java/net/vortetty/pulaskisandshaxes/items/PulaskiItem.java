@@ -8,11 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.MiningToolItem;
 import net.minecraft.item.ToolMaterial;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -31,11 +29,6 @@ public class PulaskiItem extends MiningToolItem {
 	public PulaskiItem(ToolMaterial material, float attackDamage, float attackSpeed, Settings settings) {
 		super(attackDamage, attackSpeed, material, AxeItemAccessor.getEffectiveBlocks(), settings);
 		this.material = material;
-		
-		this.addPropertyGetter(new Identifier("hoeing"), (stack, world, entity) -> {
-			CompoundTag tag = stack.getTag();
-			return tag.getFloat("HOEING");
-		});
 	}
 	
 	public float getMiningSpeed(ItemStack stack, BlockState state) {

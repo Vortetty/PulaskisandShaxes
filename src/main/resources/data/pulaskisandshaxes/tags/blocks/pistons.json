@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+	"pulaskisandshaxes:wooden_piston",
+	"pulaskisandshaxes:sticky_wooden_piston",
+	"minecraft:piston",
+	"minecraft:sticky_piston",
+	"pulaskisandshaxes:golden_piston",
+	"pulaskisandshaxes:sticky_golden_piston",
+	"pulaskisandshaxes:diamond_piston",
+	"pulaskisandshaxes:sticky_diamond_piston",
+	"pulaskisandshaxes:netherite_piston",
+	"pulaskisandshaxes:sticky_netherite_piston",
+	"pulaskisandshaxes:super_piston",
+	"pulaskisandshaxes:sticky_super_piston"
+  ]
+}

@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.2.6-SNAPSHOT'
+	id 'fabric-loom' version '0.2.7-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -16,16 +16,16 @@ repositories {
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:20w11a"
-	mappings "net.fabricmc:yarn:20w11a+build.11:v2"
-	modImplementation "net.fabricmc:fabric-loader:0.7.8+build.187"
+	minecraft "com.mojang:minecraft:1.16.1"
+	mappings "net.fabricmc:yarn:1.16.1+build.21:v2"
+	modImplementation "net.fabricmc:fabric-loader:0.9.0+build.204"
 
 	//Fabric api
-	modImplementation "net.fabricmc.fabric-api:fabric-api:0.5.3+build.308-1.16"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:0.16.0+build.384-1.16.1"
 
 	// rrp
-	modCompile group: 'net.devtech', name: 'rrp', version: '2.0.1'
-	include group: 'net.devtech', name: 'rrp', version: '2.0.1'
+	modImplementation group: 'net.devtech', name: 'rrp', version: '2.0.2', { exclude group: "net.fabricmc.fabric-api" }
+	include group: 'net.devtech', name: 'rrp', version: '2.0.2', { exclude group: "net.fabricmc.fabric-api" }
 }
 
 processResources {
@@ -58,14 +58,8 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 jar {
 	from "LICENSE"
-	sourceSets {
-		main {
-			java {
-				exclude 'assets/pulaskisandshaxes/textures/item/test.bat'
-				exclude 'assets/pulaskisandshaxes/textures/item/test.py'
-			}
-		}
-	}
+	exclude('assets/pulaskisandshaxes/textures/item/test.bat')
+	exclude('assets/pulaskisandshaxes/textures/item/test.py')
 }
 
 // configure the maven publication

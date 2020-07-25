@@ -6,8 +6,8 @@
   "mixins": [
 	"AxeItemAccessor",
 	"HoeItemAccessor",
-	"musicOverrideMixin",
-	"ShovelItemAccessor"
+	"ShovelItemAccessor",
+	"PistonHeadMixin"
   ],
   "client": [
   ],

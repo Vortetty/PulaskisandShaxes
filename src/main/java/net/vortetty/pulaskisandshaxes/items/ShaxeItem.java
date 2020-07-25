@@ -34,7 +34,7 @@ public class ShaxeItem extends MiningToolItem {
 			if (block != Blocks.DIAMOND_BLOCK && block != Blocks.DIAMOND_ORE && block != Blocks.EMERALD_ORE && block != Blocks.EMERALD_BLOCK && block != Blocks.GOLD_BLOCK && !block.isIn(BlockTags.GOLD_ORES) && block != Blocks.REDSTONE_ORE) {
 				if (block != Blocks.IRON_BLOCK && block != Blocks.IRON_ORE && block != Blocks.LAPIS_BLOCK && block != Blocks.LAPIS_ORE) {
 					Material material = state.getMaterial();
-					return material == Material.STONE || material == Material.METAL || material == Material.ANVIL || block == Blocks.SNOW || block == Blocks.SNOW_BLOCK;
+					return material == Material.STONE || material == Material.METAL || block == Blocks.SNOW || block == Blocks.SNOW_BLOCK;
 				} else {
 					return i >= 1;
 				}
@@ -61,7 +61,7 @@ public class ShaxeItem extends MiningToolItem {
 				blockState3 = blockState2;
 			} else if (blockState.getBlock() instanceof CampfireBlock && (Boolean)blockState.get(CampfireBlock.LIT)) {
 				if (!world.isClient()) {
-					world.playLevelEvent((PlayerEntity)null, 1009, blockPos, 0);
+					world.syncWorldEvent((PlayerEntity)null, 1009, blockPos, 0);
 				}
 				
 				blockState3 = (BlockState)blockState.with(CampfireBlock.LIT, false);
@@ -86,7 +86,7 @@ public class ShaxeItem extends MiningToolItem {
 	
 	public float getMiningSpeedMultiplier(ItemStack stack, BlockState state) {
 		Material material = state.getMaterial();
-		return material != Material.METAL && material != Material.ANVIL && material != Material.STONE ? super.getMiningSpeedMultiplier(stack, state) : this.miningSpeed;
+		return material != Material.METAL && material != Material.STONE ? super.getMiningSpeedMultiplier(stack, state) : this.miningSpeed;
 	}
 	
 	static {
