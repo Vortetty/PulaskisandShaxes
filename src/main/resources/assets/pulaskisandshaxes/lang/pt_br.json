@@ -11,6 +11,13 @@
     "item.pulaskisandshaxes.diamond_shaxe": "Shaxe de diamante",
     "item.pulaskisandshaxes.netherite_pulaski": "Pulaski de netherita",
     "item.pulaskisandshaxes.netherite_shaxe": "Shaxe de netherita",
+	
+    "item.pulaskisandshaxes.netherite_stick": "§fHaste de netherita",
+    "item.pulaskisandshaxes.netherite_corner": "§fCanto de netherita",
+    "item.pulaskisandshaxes.nether_core": "§fNucleo do nether",
+    "item.pulaskisandshaxes.fused_chain": "§fCorrente fundida",
+    "item.pulaskisandshaxes.bedrock_breaker": "§fQuebrador de Rocha-mãe",
+    "item.pulaskisandshaxes.broken_bedrock_breaker": "§fQuebrador de Rocha-mãe quebrado",
 
     "block.pulaskisandshaxes.super_piston": "Super pistão (864 blocos)",
     "block.pulaskisandshaxes.sticky_super_piston": "Super pistão grudento (864 blocos)",
@@ -21,5 +28,8 @@
     "block.pulaskisandshaxes.gold_piston": "Pistão de ouro (24 blocos)",
     "block.pulaskisandshaxes.sticky_gold_piston": "Pistão de ouro grudento (24 blocos)",
     "block.pulaskisandshaxes.wooden_piston": "Pistão de madeira (6 blocos)",
-    "block.pulaskisandshaxes.sticky_wooden_piston": "Pistão de madeira grudento (6 blocos)"
+    "block.pulaskisandshaxes.sticky_wooden_piston": "Pistão de madeira grudento (6 blocos)",
+	
+    "text.autoconfig.pulaskisandshaxes.option.bedrockBreakerUses": "Usos do Quebrador de Rocha-mãe",
+    "text.autoconfig.pulaskisandshaxes.title": "Configuração dos Pulaskis e Shaxes"
 }
