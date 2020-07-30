@@ -1,0 +1,25 @@
+{
+    "item.pulaskisandshaxes.wooden_pulaski": "Pulaski de madeira",
+    "item.pulaskisandshaxes.wooden_shaxe": "Shaxe de madeira",
+    "item.pulaskisandshaxes.stone_pulaski": "Pulaski de pedra",
+    "item.pulaskisandshaxes.stone_shaxe": "Shaxe de pedra",
+    "item.pulaskisandshaxes.iron_pulaski": "Pulaski de ferro",
+    "item.pulaskisandshaxes.iron_shaxe": "Shaxe de ferro",
+    "item.pulaskisandshaxes.gold_pulaski": "Pulaski de ouro",
+    "item.pulaskisandshaxes.gold_shaxe": "Shaxe de ouro",
+    "item.pulaskisandshaxes.diamond_pulaski": "Pulaski de diamante",
+    "item.pulaskisandshaxes.diamond_shaxe": "Shaxe de diamante",
+    "item.pulaskisandshaxes.netherite_pulaski": "Pulaski de netherita",
+    "item.pulaskisandshaxes.netherite_shaxe": "Shaxe de netherita",
+
+    "block.pulaskisandshaxes.super_piston": "Super pistão (864 blocos)",
+    "block.pulaskisandshaxes.sticky_super_piston": "Super pistão grudento (864 blocos)",
+    "block.pulaskisandshaxes.netherite_piston": "Pistão de netherita (96 blocos)",
+    "block.pulaskisandshaxes.sticky_netherite_piston": "Pistão de netherita  (96 blocos)",
+    "block.pulaskisandshaxes.diamond_piston": "Pistão de diamante (48 blocos)",
+    "block.pulaskisandshaxes.sticky_diamond_piston": "Pistão de diamante grudento (48 blocos)",
+    "block.pulaskisandshaxes.gold_piston": "Pistão de ouro (24 blocos)",
+    "block.pulaskisandshaxes.sticky_gold_piston": "Pistão de ouro grudento (24 blocos)",
+    "block.pulaskisandshaxes.wooden_piston": "Pistão de madeira (6 blocos)",
+    "block.pulaskisandshaxes.sticky_wooden_piston": "Pistão de madeira grudento (6 blocos)"
+}
