@@ -9,6 +9,7 @@ import net.minecraft.block.enums.PistonType;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
+import net.minecraft.entity.mob.PiglinBrain;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -19,8 +20,10 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -49,6 +52,17 @@ public class ConfigPiston extends FacingBlock {
 		this.setDefaultState((BlockState)((BlockState)((BlockState)this.stateManager.getDefaultState()).with(FACING, Direction.NORTH)).with(EXTENDED, false));
 		this.sticky = sticky;
 		this.limit = limit;
+	}
+	
+	@Override
+	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		BlockEntity be = world.getBlockEntity(pos);
+		if (!world.isClient && !player.isCreative()) {
+			ItemScatterer.spawn(world,pos.getX(),pos.getY(),pos.getZ(),new ItemStack(this.asItem()));
+		}
+		if (this.isIn(BlockTags.GUARDED_BY_PIGLINS)) {
+			PiglinBrain.onGuardedBlockBroken(player, false);
+		}
 	}
 	
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {

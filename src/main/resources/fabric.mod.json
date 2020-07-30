@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "pulaskisandshaxes",
-  "version": "1.3.1",
+  "version": "1.3.2",
 
   "name": "Pulaskis and Shaxes",
   "description": "Pulaskis, Shaxes and more",
@@ -16,8 +16,11 @@
 
   "environment": "*",
   "entrypoints": {
-    "rrp_pre": [
-      "net.vortetty.pulaskisandshaxes.gens.Entrypoint"
+    "modmenu": [
+      "net.vortetty.pulaskisandshaxes.config.modMenuIntegration"
+    ],
+    "client": [
+      "net.vortetty.pulaskisandshaxes.pulaskisandshaxesClient"
     ],
     "main": [
       "net.vortetty.pulaskisandshaxes.pulaskisandshaxes"

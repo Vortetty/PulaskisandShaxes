@@ -13,6 +13,7 @@ repositories {
 	maven {
 		url = 'https://raw.githubusercontent.com/Devan-Kerman/Devan-Repo/master/'
 	}
+	jcenter()
 }
 
 dependencies {
@@ -24,8 +25,18 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:0.16.0+build.384-1.16.1"
 
 	// rrp
-	modImplementation group: 'net.devtech', name: 'rrp', version: '2.0.2', { exclude group: "net.fabricmc.fabric-api" }
-	include group: 'net.devtech', name: 'rrp', version: '2.0.2', { exclude group: "net.fabricmc.fabric-api" }
+	modImplementation group: 'net.devtech', name: 'arrp', version: '0.2.6', { exclude group: "net.fabricmc.fabric-api" }
+	include group: 'net.devtech', name: 'arrp', version: '0.2.6', { exclude group: "net.fabricmc.fabric-api" }
+
+	//rei for testing
+	modRuntime "me.shedaniel:RoughlyEnoughItems:4.10.3"
+
+	//auto config
+	modApi "me.sargunvohra.mcmods:autoconfig1u:3.2.0-unstable"
+	include "me.sargunvohra.mcmods:autoconfig1u:3.2.0-unstable"
+
+	//modmenu
+	modImplementation "io.github.prospector:modmenu:1.14.5+build.30"
 }
 
 processResources {

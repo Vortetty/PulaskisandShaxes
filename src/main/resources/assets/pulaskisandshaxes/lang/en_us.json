@@ -12,6 +12,13 @@
     "item.pulaskisandshaxes.netherite_pulaski": "Netherite Pulaski",
     "item.pulaskisandshaxes.netherite_shaxe": "Netherite Shaxe",
 
+    "item.pulaskisandshaxes.netherite_stick": "§fNetherite Stick",
+    "item.pulaskisandshaxes.netherite_corner": "§fNetherite Corner",
+    "item.pulaskisandshaxes.nether_core": "§fNether Core",
+    "item.pulaskisandshaxes.fused_chain": "§fFused Chain",
+    "item.pulaskisandshaxes.bedrock_breaker": "§fBedrock Breaker",
+    "item.pulaskisandshaxes.broken_bedrock_breaker": "§fBroken Bedrock Breaker",
+
     "block.pulaskisandshaxes.super_piston": "Super Piston (864 blocks)",
     "block.pulaskisandshaxes.sticky_super_piston": "Sticky Super Piston (864 blocks)",
     "block.pulaskisandshaxes.netherite_piston": "Netherite Piston (96 blocks)",
@@ -21,5 +28,8 @@
     "block.pulaskisandshaxes.gold_piston": "Golden Piston (24 blocks)",
     "block.pulaskisandshaxes.sticky_gold_piston": "Golden Sticky Piston (24 blocks)",
     "block.pulaskisandshaxes.wooden_piston": "Wooden Piston (6 blocks)",
-    "block.pulaskisandshaxes.sticky_wooden_piston": "Sticky Wooden Piston (6 blocks)"
+    "block.pulaskisandshaxes.sticky_wooden_piston": "Sticky Wooden Piston (6 blocks)",
+
+    "text.autoconfig.pulaskisandshaxes.option.bedrockBreakerUses": "Bedrock Breaker Uses",
+    "text.autoconfig.pulaskisandshaxes.title": "Pulaskis and Shaxes Config"
 }
