@@ -1,6 +1,7 @@
 plugins {
 	id 'fabric-loom' version '0.2.7-SNAPSHOT'
 	id 'maven-publish'
+	id 'org.jetbrains.kotlin.jvm' version '1.3.61'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -23,6 +24,9 @@ dependencies {
 
 	//Fabric api
 	modImplementation "net.fabricmc.fabric-api:fabric-api:0.16.0+build.384-1.16.1"
+
+	//kotlin
+	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
 
 	// rrp
 	modImplementation group: 'net.devtech', name: 'arrp', version: '0.2.6', { exclude group: "net.fabricmc.fabric-api" }
@@ -89,7 +93,7 @@ publishing {
 
 	// select the repositories you want to publish to
 	repositories {
-		File gh = new File("C:/Users/vorte/mods/PulaskisAndShaxes/maven")
+		File gh = new File("C:/Users/Vortetty/mods/PulaskisAndShaxes/maven")
 		System.out.println(gh)
 		if(gh.exists()) {
 			maven {
@@ -100,4 +104,16 @@ publishing {
 		// mavenLocal()
 	}
 
+}
+
+compileKotlin.kotlinOptions.jvmTarget = "1.8"
+compileKotlin {
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
+}
+compileTestKotlin {
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
 }
