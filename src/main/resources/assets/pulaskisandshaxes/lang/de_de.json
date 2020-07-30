@@ -1,0 +1,25 @@
+{
+  "item.pulaskisandshaxes.wooden_pulaski": "Holz Pulaski",
+  "item.pulaskisandshaxes.wooden_shaxe": "Holz Shaxe",
+  "item.pulaskisandshaxes.stone_pulaski": "Stein Pulaski",
+  "item.pulaskisandshaxes.stone_shaxe": "Stein Shaxe",
+  "item.pulaskisandshaxes.iron_pulaski": "Eisen Pulaski",
+  "item.pulaskisandshaxes.iron_shaxe": "Eisen Shaxe",
+  "item.pulaskisandshaxes.gold_pulaski": "Gold Pulaski",
+  "item.pulaskisandshaxes.gold_shaxe": "Gold Shaxe",
+  "item.pulaskisandshaxes.diamond_pulaski": "Diamant Pulaski",
+  "item.pulaskisandshaxes.diamond_shaxe": "Diamant Shaxe",
+  "item.pulaskisandshaxes.netherite_pulaski": "Netherit Pulaski",
+  "item.pulaskisandshaxes.netherite_shaxe": "Netherit Shaxe",
+
+  "block.pulaskisandshaxes.super_piston": "Super Kolben (864 Blöcke)",
+  "block.pulaskisandshaxes.sticky_super_piston": "Klebriger Super Kolben (864 Blöcke)",
+  "block.pulaskisandshaxes.netherite_piston": "Netherit Kolben (96 Blöcke)",
+  "block.pulaskisandshaxes.sticky_netherite_piston": "Klebriger Netherit Kolben (96 Blöcke)",
+  "block.pulaskisandshaxes.diamond_piston": "Diamant Kolben (48 Blöcke)",
+  "block.pulaskisandshaxes.sticky_diamond_piston": "Klebriger Diamant Kolben (48 Blöcke)",
+  "block.pulaskisandshaxes.gold_piston": "Gold Kolben (24 Blöcke)",
+  "block.pulaskisandshaxes.sticky_gold_piston": "Klebriger Gold Kolben (24 Blöcke)",
+  "block.pulaskisandshaxes.wooden_piston": "Holz Kolben (6 Blöcke)",
+  "block.pulaskisandshaxes.sticky_wooden_piston": "Klebriger Holz Kolben (6 Blöcke)"
+}
