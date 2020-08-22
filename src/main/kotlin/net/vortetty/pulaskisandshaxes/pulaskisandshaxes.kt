@@ -1,5 +1,8 @@
 package net.vortetty.pulaskisandshaxes
 
+import com.google.common.collect.BiMap
+import com.google.common.collect.HashBiMap
+import com.google.common.collect.Maps
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig
 import me.sargunvohra.mcmods.autoconfig1u.annotation.Config
 import me.sargunvohra.mcmods.autoconfig1u.serializer.GsonConfigSerializer
@@ -10,16 +13,19 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.block.FabricBlockSettings
 import net.fabricmc.fabric.api.tag.TagRegistry
 import net.minecraft.block.Material
+import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
 import net.minecraft.item.ToolMaterials
-import net.minecraft.resource.ResourcePack
 import net.minecraft.util.Identifier
 import net.minecraft.util.Rarity
 import net.minecraft.util.registry.Registry
+import net.minecraft.world.gen.GenerationStep
+import net.minecraft.world.gen.feature.StructureFeature
 import net.vortetty.pulaskisandshaxes.block.ConfigPiston
 import net.vortetty.pulaskisandshaxes.config.bedrockBreakerConfig
+import net.vortetty.pulaskisandshaxes.enchant.lethalityEnchant
 import net.vortetty.pulaskisandshaxes.items.PulaskiItem
 import net.vortetty.pulaskisandshaxes.items.ShaxeItem
 import net.vortetty.pulaskisandshaxes.items.bedrockBreaker
@@ -28,6 +34,8 @@ import java.util.*
 
 class pulaskisandshaxes : ModInitializer {
     companion object {
+        private val STRUCTURES: BiMap<String, StructureFeature<*>> = HashBiMap.create()
+        private val STRUCTURE_TO_GENERATION_STEP: Map<StructureFeature<*>, GenerationStep.Feature> = Maps.newHashMap()
         var config: bedrockBreakerConfig? = null
 
         //  _______          _
@@ -56,6 +64,7 @@ class pulaskisandshaxes : ModInitializer {
         val NETHER_CORE = uselessItem(Item.Settings().group(ItemGroup.MATERIALS).maxCount(1).maxDamage(0).rarity(Rarity.EPIC), true)
         val NETHERITE_CORNER = uselessItem(Item.Settings().group(ItemGroup.MATERIALS).maxCount(1).maxDamage(0).rarity(Rarity.EPIC), false)
         val NETHERITE_STICK = uselessItem(Item.Settings().group(ItemGroup.MATERIALS).fireproof().maxCount(1).maxDamage(0).rarity(Rarity.EPIC), false)
+        //val EXPOSURE = Item(Item.Settings().group(ItemGroup.MATERIALS).rarity(Rarity.COMMON).fireproof())
 
         //  ____  _            _
         // |  _ \| |          | |
@@ -76,7 +85,6 @@ class pulaskisandshaxes : ModInitializer {
         val STICKYSUPERPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 2).collidable(true).hardness(10f).build(), 864)
     }
 
-
     override fun onInitialize() {
         println("\n\n\n\npulaskisandshaxes initializing\n\n\n\n")
         //
@@ -84,6 +92,15 @@ class pulaskisandshaxes : ModInitializer {
         //
         AutoConfig.register(bedrockBreakerConfig::class.java) { definition: Config?, configClass: Class<bedrockBreakerConfig?>? -> GsonConfigSerializer(definition, configClass) }
         config = AutoConfig.getConfigHolder<bedrockBreakerConfig>(bedrockBreakerConfig::class.java).config
+
+        //
+        //enchants
+        //
+        val LETHALITY_ENCHANT: Enchantment = Registry.register(
+                Registry.ENCHANTMENT,
+                Identifier("pulaskisandshaxes", "lethality"),
+                lethalityEnchant()
+        )
 
         //
         //bedrock breaker stuff
@@ -94,6 +111,11 @@ class pulaskisandshaxes : ModInitializer {
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "nether_core"), NETHER_CORE)
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "netherite_corner"), NETHERITE_CORNER)
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "netherite_stick"), NETHERITE_STICK)
+
+        //
+        //Exposure Bucks
+        //
+        //Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "exposure_bucks"), EXPOSURE)
 
         //
         //pulaskis and shaxes

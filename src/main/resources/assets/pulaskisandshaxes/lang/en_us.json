@@ -31,5 +31,6 @@
     "block.pulaskisandshaxes.sticky_wooden_piston": "Sticky Wooden Piston (6 blocks)",
 
     "text.autoconfig.pulaskisandshaxes.option.bedrockBreakerUses": "Bedrock Breaker Uses",
+    "text.autoconfig.pulaskisandshaxes.option.doRandomDrops": "Randomize Block Drops",
     "text.autoconfig.pulaskisandshaxes.title": "Pulaskis and Shaxes Config"
 }

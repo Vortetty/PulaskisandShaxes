@@ -6,4 +6,5 @@ import me.sargunvohra.mcmods.autoconfig1u.annotation.Config
 @Config(name = "pulaskisandshaxes")
 class bedrockBreakerConfig : ConfigData {
     var bedrockBreakerUses = 10
+    var doRandomDrops = false
 }
