@@ -7,7 +7,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemUsageContext
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.TypedActionResult
@@ -31,9 +30,6 @@ class uselessItem : Item {
     }
 
     override fun usageTick(world: World, user: LivingEntity, stack: ItemStack, remainingUseTicks: Int) {}
-    override fun postProcessTag(tag: CompoundTag): Boolean {
-        return false
-    }
 
     override fun canMine(state: BlockState, world: World, pos: BlockPos, miner: PlayerEntity): Boolean {
         return true
@@ -78,10 +74,6 @@ class uselessItem : Item {
     }
 
     override fun postMine(stack: ItemStack, world: World, state: BlockState, pos: BlockPos, miner: LivingEntity): Boolean {
-        return false
-    }
-
-    override fun isEffectiveOn(state: BlockState): Boolean {
         return false
     }
 

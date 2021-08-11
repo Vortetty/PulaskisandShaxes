@@ -1,85 +1,84 @@
 package net.vortetty.pulaskisandshaxes.items
 
+import com.google.common.collect.BiMap
+import com.mojang.datafixers.util.Pair
+import net.minecraft.advancement.criterion.Criteria
 import net.minecraft.block.*
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.item.ItemUsageContext
-import net.minecraft.item.MiningToolItem
-import net.minecraft.item.ToolMaterial
+import net.minecraft.item.*
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
+import net.minecraft.tag.BlockTags
 import net.minecraft.util.ActionResult
-import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
-import net.minecraft.world.World
+import net.minecraft.world.WorldEvents
 import net.vortetty.pulaskisandshaxes.mixin.AxeItemAccessor
 import net.vortetty.pulaskisandshaxes.mixin.HoeItemAccessor
 import java.util.*
+import java.util.function.Consumer
+import java.util.function.Predicate
 
-class PulaskiItem(material: ToolMaterial, attackDamage: Float, attackSpeed: Float, settings: Settings?) : MiningToolItem(attackDamage, attackSpeed, material, AxeItemAccessor.getEffectiveBlocks(), settings) {
-    fun getMiningSpeed(stack: ItemStack?, state: BlockState): Float {
-        val material = state.material
-        return miningSpeed
-    }
+open class PulaskiItem(material: ToolMaterial?, attackDamage: Float, attackSpeed: Float, settings: Settings?) : MiningToolItem(attackDamage, attackSpeed, material, BlockTags.AXE_MINEABLE, settings) {
+    private var STRIPPED_BLOCKS: Map<Block, Block> = AxeItemAccessor.getStrippedBlocks()
+    private var TILLED_BLOCKS: Map<Block, Pair<Predicate<ItemUsageContext>, Consumer<ItemUsageContext>>> = HoeItemAccessor.getTilledBlocks()
 
     override fun useOnBlock(context: ItemUsageContext): ActionResult {
         val world = context.world
         val blockPos = context.blockPos
+        val playerEntity = context.player
         val blockState = world.getBlockState(blockPos)
-        val block = STRIPPED_BLOCKS!![blockState.block]
-        if (block != null) {
-            val playerEntity = context.player
+        val optional = getStrippedState(blockState)
+        val optional2 = Oxidizable.getDecreasedOxidationState(blockState)
+        val optional3 = Optional.ofNullable((HoneycombItem.WAXED_TO_UNWAXED_BLOCKS.get() as BiMap<*, *>)[blockState.block] as Block?).map { block: Block -> block.getStateWithProperties(blockState) }
+        val itemStack = context.stack
+        var optional4 = Optional.empty<BlockState>()
+        val pair: Pair<Predicate<ItemUsageContext>, Consumer<ItemUsageContext>>? = TILLED_BLOCKS[world.getBlockState(blockPos).block]
+        if (optional.isPresent) {
             world.playSound(playerEntity, blockPos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0f, 1.0f)
-            //stack.getOrCreateTag().putFloat("HOEING", 0f);
-            if (!world.isClient) {
-                world.setBlockState(blockPos, block.defaultState.with(PillarBlock.AXIS, blockState.get(PillarBlock.AXIS)) as BlockState, 11)
-                if (playerEntity != null) {
-                    context.stack.damage(1, playerEntity, { p: PlayerEntity -> p.sendToolBreakStatus(context.hand) })
-                }
+            optional4 = optional
+        } else if (optional2.isPresent) {
+            world.playSound(playerEntity, blockPos, SoundEvents.ITEM_AXE_SCRAPE, SoundCategory.BLOCKS, 1.0f, 1.0f)
+            world.syncWorldEvent(playerEntity, WorldEvents.BLOCK_SCRAPED, blockPos, 0)
+            optional4 = optional2
+        } else if (optional3.isPresent) {
+            world.playSound(playerEntity, blockPos, SoundEvents.ITEM_AXE_WAX_OFF, SoundCategory.BLOCKS, 1.0f, 1.0f)
+            world.syncWorldEvent(playerEntity, WorldEvents.WAX_REMOVED, blockPos, 0)
+            optional4 = optional3
+        }
+        return if (optional4.isPresent) {
+            if (playerEntity is ServerPlayerEntity) {
+                Criteria.ITEM_USED_ON_BLOCK.trigger(playerEntity as ServerPlayerEntity?, blockPos, itemStack)
             }
-            return ActionResult.SUCCESS
-        } else if (context.side != Direction.DOWN && (world.getBlockState(blockPos.up()).material == Material.AIR || world.getBlockState(blockPos.up()).material == Material.BAMBOO || world.getBlockState(blockPos.up()).material == Material.BAMBOO_SAPLING || world.getBlockState(blockPos.up()).material == Material.PLANT)) {
-            val blockState1 = TILLED_BLOCKS!![world.getBlockState(blockPos).block]
-            if (blockState1 != null) {
-                val playerEntity = context.player
-                world.playSound(playerEntity, blockPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0f, 1.0f)
-                //stack.getOrCreateTag().putFloat("HOEING", 1f);
-                if (!world.isClient) {
-                    world.setBlockState(blockPos, blockState1, 11)
-                    if (playerEntity != null) {
-                        context.stack.damage(1, playerEntity, { p: PlayerEntity -> p.sendToolBreakStatus(context.hand) })
+            world.setBlockState(blockPos, optional4.get(), Block.NOTIFY_ALL or Block.REDRAW_ON_MAIN_THREAD)
+            if (playerEntity != null) {
+                itemStack.damage(1, playerEntity as LivingEntity) { p: LivingEntity -> p.sendToolBreakStatus(context.hand) }
+            }
+            ActionResult.success(world.isClient)
+        } else {
+            return if (pair == null) {
+                ActionResult.PASS
+            } else {
+                val predicate: Predicate<ItemUsageContext> = pair.first as Predicate<ItemUsageContext>
+                val consumer: Consumer<ItemUsageContext> = pair.second as Consumer<ItemUsageContext>
+                if (predicate.test(context)) {
+                    world.playSound(playerEntity, blockPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0f, 1.0f)
+                    if (!world.isClient) {
+                        consumer.accept(context)
+                        if (playerEntity != null) {
+                            context.stack.damage(1, playerEntity as LivingEntity) { p: LivingEntity -> p.sendToolBreakStatus(context.hand) }
+                        }
                     }
+                    ActionResult.success(world.isClient)
+                } else {
+                    ActionResult.PASS
                 }
-                return ActionResult.SUCCESS
             }
         }
-        return ActionResult.PASS
     }
 
-    override fun postHit(stack: ItemStack, target: LivingEntity, attacker: LivingEntity): Boolean {
-        stack.damage(2, attacker, { e: LivingEntity -> e.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND) })
-        return true
-    }
-
-    override fun postMine(stack: ItemStack, world: World, state: BlockState, pos: BlockPos, miner: LivingEntity): Boolean {
-        if (!world.isClient && state.getHardness(world, pos) != 0.0f) {
-            stack.damage(1, miner, { e: LivingEntity -> e.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND) })
-        }
-        //stack.getOrCreateTag().putFloat("HOEING", 0f);
-        return true
-    }
-
-    companion object {
-        var STRIPPED_BLOCKS: Map<Block, Block>? = null
-        var TILLED_BLOCKS: Map<Block, BlockState>? = null
-
-        init {
-            AxeItemAccessor.getEffectiveBlocks().addAll(Arrays.asList(Blocks.STRIPPED_ACACIA_LOG, Blocks.STRIPPED_ACACIA_WOOD, Blocks.STRIPPED_BIRCH_WOOD, Blocks.STRIPPED_BIRCH_LOG, Blocks.STRIPPED_CRIMSON_HYPHAE, Blocks.STRIPPED_CRIMSON_STEM, Blocks.STRIPPED_DARK_OAK_LOG, Blocks.STRIPPED_DARK_OAK_WOOD, Blocks.STRIPPED_JUNGLE_LOG, Blocks.STRIPPED_JUNGLE_WOOD, Blocks.STRIPPED_OAK_LOG, Blocks.STRIPPED_OAK_WOOD, Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_WOOD, Blocks.STRIPPED_WARPED_HYPHAE, Blocks.STRIPPED_WARPED_STEM))
-            STRIPPED_BLOCKS = AxeItemAccessor.getStrippedBlocks()
-            TILLED_BLOCKS = HoeItemAccessor.getTilledBlocks()
-        }
+    private fun getStrippedState(state: BlockState): Optional<BlockState> {
+        return Optional.ofNullable(STRIPPED_BLOCKS[state.block]).map { block: Block -> block.defaultState.with(PillarBlock.AXIS, state.get(PillarBlock.AXIS) as Direction.Axis) as BlockState }
     }
 
 }

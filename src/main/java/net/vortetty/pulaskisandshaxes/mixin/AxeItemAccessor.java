@@ -14,9 +14,4 @@ public interface AxeItemAccessor {
 	public static Map<Block, Block> getStrippedBlocks() {
 		return null;
 	}
-	
-	@Accessor("EFFECTIVE_BLOCKS")
-	public static Set<Block> getEffectiveBlocks() {
-		return null;
-	}
 }

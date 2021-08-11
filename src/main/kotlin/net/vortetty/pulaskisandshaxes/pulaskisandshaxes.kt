@@ -3,9 +3,9 @@ package net.vortetty.pulaskisandshaxes
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import com.google.common.collect.Maps
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig
-import me.sargunvohra.mcmods.autoconfig1u.annotation.Config
-import me.sargunvohra.mcmods.autoconfig1u.serializer.GsonConfigSerializer
+import me.shedaniel.autoconfig.AutoConfig
+import me.shedaniel.autoconfig.annotation.Config
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer
 import net.devtech.arrp.api.RRPCallback
 import net.devtech.arrp.api.RuntimeResourcePack
 import net.devtech.arrp.json.recipe.*

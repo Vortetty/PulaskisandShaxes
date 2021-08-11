@@ -1,20 +1,25 @@
-package net.vortetty.pulaskisandshaxes.block.handlers
+package net.minecraft.block.piston
 
 import com.google.common.collect.Lists
-import net.minecraft.block.Block
+import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.PistonBlock
-import net.minecraft.block.piston.PistonBehavior
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
 
-class ConfigHandler(private val world: World, private val posFrom: BlockPos, private val pistonDirection: Direction, private val retracted: Boolean, limit: Int) {
+class ConfigHandler(
+    private val world: World,
+    private val posFrom: BlockPos,
+    private val pistonDirection: Direction,
+    private val retracted: Boolean,
+    limit: Int
+) {
     private var posTo: BlockPos? = null
-    private var motionDirection: Direction? = null
+    var motionDirection: Direction? = null
     private val movedBlocks: MutableList<BlockPos> = Lists.newArrayList()
     private val brokenBlocks: MutableList<BlockPos?> = Lists.newArrayList()
-    private val limit: Int
+    private var limit: Int
     fun calculatePush(): Boolean {
         movedBlocks.clear()
         brokenBlocks.clear()
@@ -31,7 +36,7 @@ class ConfigHandler(private val world: World, private val posFrom: BlockPos, pri
         } else {
             for (i in movedBlocks.indices) {
                 val blockPos = movedBlocks[i]
-                if (isBlockSticky(world.getBlockState(blockPos).block) && !canMoveAdjacentBlock(blockPos)) {
+                if (isBlockSticky(world.getBlockState(blockPos)) && !tryMoveAdjacentBlock(blockPos)) {
                     return false
                 }
             }
@@ -41,7 +46,6 @@ class ConfigHandler(private val world: World, private val posFrom: BlockPos, pri
 
     private fun tryMove(pos: BlockPos?, dir: Direction?): Boolean {
         var blockState = world.getBlockState(pos)
-        var block = blockState.block
         if (blockState.isAir) {
             return true
         } else if (!PistonBlock.isMovable(blockState, world, pos, motionDirection, false, dir)) {
@@ -55,12 +59,15 @@ class ConfigHandler(private val world: World, private val posFrom: BlockPos, pri
             if (i + movedBlocks.size > limit) {
                 return false
             } else {
-                while (isBlockSticky(block)) {
+                while (isBlockSticky(blockState)) {
                     val blockPos = pos!!.offset(motionDirection!!.opposite, i)
-                    val block2 = block
+                    val blockState2 = blockState
                     blockState = world.getBlockState(blockPos)
-                    block = blockState.block
-                    if (blockState.isAir || !isAdjacentBlockStuck(block2, block) || !PistonBlock.isMovable(blockState, world, blockPos, motionDirection, false, motionDirection!!.opposite) || blockPos == posFrom) {
+                    if (blockState.isAir || !isAdjacentBlockStuck(blockState2, blockState) || !PistonBlock.isMovable(
+                            blockState,
+                            world, blockPos, motionDirection, false, motionDirection!!.opposite
+                        ) || blockPos == posFrom
+                    ) {
                         break
                     }
                     ++i
@@ -84,7 +91,7 @@ class ConfigHandler(private val world: World, private val posFrom: BlockPos, pri
                         setMovedBlocks(j, m)
                         for (n in 0..m + j) {
                             val blockPos3 = movedBlocks[n]
-                            if (isBlockSticky(world.getBlockState(blockPos3).block) && !canMoveAdjacentBlock(blockPos3)) {
+                            if (isBlockSticky(world.getBlockState(blockPos3)) && !tryMoveAdjacentBlock(blockPos3)) {
                                 return false
                             }
                         }
@@ -94,7 +101,15 @@ class ConfigHandler(private val world: World, private val posFrom: BlockPos, pri
                     if (blockState.isAir) {
                         return true
                     }
-                    if (!PistonBlock.isMovable(blockState, world, blockPos2, motionDirection, true, motionDirection) || blockPos2 == posFrom) {
+                    if (!PistonBlock.isMovable(
+                            blockState,
+                            world,
+                            blockPos2,
+                            motionDirection,
+                            true,
+                            motionDirection
+                        ) || blockPos2 == posFrom
+                    ) {
                         return false
                     }
                     if (blockState.pistonBehavior == PistonBehavior.DESTROY) {
@@ -125,7 +140,7 @@ class ConfigHandler(private val world: World, private val posFrom: BlockPos, pri
         movedBlocks.addAll(list3)
     }
 
-    private fun canMoveAdjacentBlock(pos: BlockPos): Boolean {
+    private fun tryMoveAdjacentBlock(pos: BlockPos): Boolean {
         val blockState = world.getBlockState(pos)
         val var3 = Direction.values()
         val var4 = var3.size
@@ -134,7 +149,7 @@ class ConfigHandler(private val world: World, private val posFrom: BlockPos, pri
             if (direction.axis !== motionDirection!!.axis) {
                 val blockPos = pos.offset(direction)
                 val blockState2 = world.getBlockState(blockPos)
-                if (isAdjacentBlockStuck(blockState2.block, blockState.block) && !tryMove(blockPos, direction)) {
+                if (isAdjacentBlockStuck(blockState2, blockState) && !tryMove(blockPos, direction)) {
                     return false
                 }
             }
@@ -151,17 +166,17 @@ class ConfigHandler(private val world: World, private val posFrom: BlockPos, pri
     }
 
     companion object {
-        private fun isBlockSticky(block: Block): Boolean {
-            return block === Blocks.SLIME_BLOCK || block === Blocks.HONEY_BLOCK
+        private fun isBlockSticky(state: BlockState): Boolean {
+            return state.isOf(Blocks.SLIME_BLOCK) || state.isOf(Blocks.HONEY_BLOCK)
         }
 
-        private fun isAdjacentBlockStuck(block: Block, block2: Block): Boolean {
-            return if (block === Blocks.HONEY_BLOCK && block2 === Blocks.SLIME_BLOCK) {
+        private fun isAdjacentBlockStuck(state: BlockState, adjacentState: BlockState): Boolean {
+            return if (state.isOf(Blocks.HONEY_BLOCK) && adjacentState.isOf(Blocks.SLIME_BLOCK)) {
                 false
-            } else if (block === Blocks.SLIME_BLOCK && block2 === Blocks.HONEY_BLOCK) {
+            } else if (state.isOf(Blocks.SLIME_BLOCK) && adjacentState.isOf(Blocks.HONEY_BLOCK)) {
                 false
             } else {
-                isBlockSticky(block) || isBlockSticky(block2)
+                isBlockSticky(state) || isBlockSticky(adjacentState)
             }
         }
     }
@@ -174,6 +189,7 @@ class ConfigHandler(private val world: World, private val posFrom: BlockPos, pri
             motionDirection = pistonDirection.opposite
             posTo = posFrom.offset(pistonDirection, 2)
         }
+
         this.limit = limit
     }
 }
