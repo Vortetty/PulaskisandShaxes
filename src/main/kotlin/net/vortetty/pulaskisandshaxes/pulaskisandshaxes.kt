@@ -29,6 +29,7 @@ import net.vortetty.pulaskisandshaxes.items.PulaskiItem
 import net.vortetty.pulaskisandshaxes.items.ShaxeItem
 import net.vortetty.pulaskisandshaxes.items.bedrockBreaker
 import net.vortetty.pulaskisandshaxes.items.uselessItem
+import org.hjson.Stringify
 import java.util.*
 
 fun joinVoxels(vararg shapes: VoxelShape): VoxelShape {
@@ -48,7 +49,7 @@ fun createCuboidShape(minX: Double, minY: Double, minZ: Double, sizeX: Double, s
 
 class pulaskisandshaxes : ModInitializer {
     companion object {
-        var config: configuration? = null
+        var config: configuration = configuration()
 
         //  _______          _
         // |__   __|        | |
@@ -116,11 +117,14 @@ class pulaskisandshaxes : ModInitializer {
 
     override fun onInitialize() {
         println("\n\n\n\npulaskisandshaxes initializing\n\n\n\n")
+        config.loadConfig()
+        println("\n\n\n\n\n" + config.config.toString(Stringify.HJSON) + "\n\n\n\n\n")
+        config.initConfigObject()
         //
         //config
         //
-        AutoConfig.register(configuration::class.java) { definition: Config?, configClass: Class<configuration?>? -> GsonConfigSerializer(definition, configClass) }
-        config = AutoConfig.getConfigHolder<configuration>(configuration::class.java).config
+        //AutoConfig.register(configuration::class.java) { definition: Config?, configClass: Class<configuration?>? -> GsonConfigSerializer(definition, configClass) }
+        //config = AutoConfig.getConfigHolder<configuration>(configuration::class.java).config
 
         //
         //enchants
@@ -134,7 +138,7 @@ class pulaskisandshaxes : ModInitializer {
         //
         //bedrock breaker stuff
         //
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "bedrock_breaker"), bedrockBreaker(ToolMaterials.NETHERITE, Item.Settings().group(ItemGroup.TOOLS).fireproof().maxCount(1).maxDamage(100).rarity(Rarity.EPIC), config as configuration))
+        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "bedrock_breaker"), bedrockBreaker(ToolMaterials.NETHERITE, Item.Settings().group(ItemGroup.TOOLS).fireproof().maxCount(1).maxDamage(100).rarity(Rarity.EPIC)))
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "broken_bedrock_breaker"), BROKEN_BEDROCK_BREAKER)
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "fused_chain"), FUZED_CHAIN)
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "nether_core"), NETHER_CORE)

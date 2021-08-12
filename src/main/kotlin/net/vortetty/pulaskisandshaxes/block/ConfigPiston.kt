@@ -359,9 +359,9 @@ open class ConfigPiston(sticky: Boolean, settings: Settings?, limit: Int) : Faci
                                 PistonBehavior.IGNORE -> true
                             }
                         } else if (state.get(EXTENDED) as Boolean) {
-                            return pulaskisandshaxes.config!!.allowPushExtendedPiston
+                            return pulaskisandshaxes.config!!.config.get("general_config").asObject().getBoolean("allowPushExtendedPiston", false)
                         }
-                        !state.hasBlockEntity() || pulaskisandshaxes.config!!.allowPushBlockEntities
+                        !state.hasBlockEntity() || pulaskisandshaxes.config!!.config.get("general_config").asObject().getBoolean("allowPushBlockEntities", false)
                     }
                 } else {
                     false
