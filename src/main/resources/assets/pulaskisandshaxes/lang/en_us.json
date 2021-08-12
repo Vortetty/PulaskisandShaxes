@@ -30,7 +30,13 @@
     "block.pulaskisandshaxes.wooden_piston": "Wooden Piston (6 blocks)",
     "block.pulaskisandshaxes.sticky_wooden_piston": "Sticky Wooden Piston (6 blocks)",
 
+    "item.pulaskisandshaxes.exposure_bucks": "Exposure",
+    "block.pulaskisandshaxes.bad_apple": "Bad Apple",
+
     "text.autoconfig.pulaskisandshaxes.option.bedrockBreakerUses": "Bedrock Breaker Uses",
     "text.autoconfig.pulaskisandshaxes.option.doRandomDrops": "Randomize Block Drops",
+    "text.autoconfig.pulaskisandshaxes.option.doRandomPlaces": "Randomize Placed Blocks",
+    "text.autoconfig.pulaskisandshaxes.option.allowPushBlockEntities": "Allow Pushing Block Entities",
+    "text.autoconfig.pulaskisandshaxes.option.allowPushExtendedPiston": "Allow Pushing Extended Pistons",
     "text.autoconfig.pulaskisandshaxes.title": "Pulaskis and Shaxes Config"
 }

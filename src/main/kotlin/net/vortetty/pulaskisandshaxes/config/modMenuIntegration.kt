@@ -10,6 +10,6 @@ import net.minecraft.client.gui.screen.Screen
 @Environment(EnvType.CLIENT)
 class modMenuIntegration : ModMenuApi {
     override fun getModConfigScreenFactory(): ConfigScreenFactory<*> {
-        return ConfigScreenFactory { parent -> AutoConfig.getConfigScreen(bedrockBreakerConfig::class.java, parent).get() as Screen }
+        return ConfigScreenFactory { parent -> AutoConfig.getConfigScreen(configuration::class.java, parent).get() as Screen }
     }
 }

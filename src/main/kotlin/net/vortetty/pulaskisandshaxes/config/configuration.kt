@@ -4,7 +4,10 @@ import me.shedaniel.autoconfig.ConfigData
 import me.shedaniel.autoconfig.annotation.Config
 
 @Config(name = "pulaskisandshaxes")
-class bedrockBreakerConfig : ConfigData {
+class configuration : ConfigData {
     var bedrockBreakerUses = 10
     var doRandomDrops = false
+    var doRandomPlaces = false
+    var allowPushBlockEntities = false
+    var allowPushExtendedPiston = false
 }

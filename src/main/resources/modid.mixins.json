@@ -4,15 +4,15 @@
   "package": "net.vortetty.pulaskisandshaxes.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-	"AxeItemAccessor",
-	"HoeItemAccessor",
-	"ShovelItemAccessor",
-	"PistonHeadMixin",
-	"blockDropMixin"
+    "AxeItemAccessor",
+    "HoeItemAccessor",
+    "ShovelItemAccessor",
+    "PistonHeadMixin",
+    "blockDropMixin"
   ],
   "client": [
   ],
   "injectors": {
-	"defaultRequire": 1
+    "defaultRequire": 1
   }
 }

@@ -17,15 +17,15 @@ import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.explosion.Explosion
-import net.vortetty.pulaskisandshaxes.config.bedrockBreakerConfig
+import net.vortetty.pulaskisandshaxes.config.configuration
 import net.vortetty.pulaskisandshaxes.pulaskisandshaxes
 import java.util.*
 
-class bedrockBreaker(material: ToolMaterial?, settings: Settings?, config: bedrockBreakerConfig) : ToolItem(material, settings) {
+class bedrockBreaker(material: ToolMaterial?, settings: Settings?, config: configuration) : ToolItem(material, settings) {
     var uses: Int
     private var maxDamage = 0
         @JvmName("getMaxDamage0") get
-    private val config: bedrockBreakerConfig
+    private val config: configuration
     var rand = Random()
 
     @Environment(EnvType.CLIENT)

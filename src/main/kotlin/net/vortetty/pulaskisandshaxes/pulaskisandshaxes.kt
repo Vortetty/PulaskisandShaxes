@@ -1,8 +1,5 @@
 package net.vortetty.pulaskisandshaxes
 
-import com.google.common.collect.BiMap
-import com.google.common.collect.HashBiMap
-import com.google.common.collect.Maps
 import me.shedaniel.autoconfig.AutoConfig
 import me.shedaniel.autoconfig.annotation.Config
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer
@@ -10,8 +7,9 @@ import net.devtech.arrp.api.RRPCallback
 import net.devtech.arrp.api.RuntimeResourcePack
 import net.devtech.arrp.json.recipe.*
 import net.fabricmc.api.ModInitializer
-import net.fabricmc.fabric.api.block.FabricBlockSettings
+import net.fabricmc.fabric.api.`object`.builder.v1.block.FabricBlockSettings
 import net.fabricmc.fabric.api.tag.TagRegistry
+import net.minecraft.block.Block
 import net.minecraft.block.Material
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.BlockItem
@@ -21,10 +19,11 @@ import net.minecraft.item.ToolMaterials
 import net.minecraft.util.Identifier
 import net.minecraft.util.Rarity
 import net.minecraft.util.registry.Registry
-import net.minecraft.world.gen.GenerationStep
-import net.minecraft.world.gen.feature.StructureFeature
+import net.minecraft.util.shape.VoxelShape
+import net.minecraft.util.shape.VoxelShapes
 import net.vortetty.pulaskisandshaxes.block.ConfigPiston
-import net.vortetty.pulaskisandshaxes.config.bedrockBreakerConfig
+import net.vortetty.pulaskisandshaxes.block.UselessBlock
+import net.vortetty.pulaskisandshaxes.config.configuration
 import net.vortetty.pulaskisandshaxes.enchant.lethalityEnchant
 import net.vortetty.pulaskisandshaxes.items.PulaskiItem
 import net.vortetty.pulaskisandshaxes.items.ShaxeItem
@@ -32,11 +31,24 @@ import net.vortetty.pulaskisandshaxes.items.bedrockBreaker
 import net.vortetty.pulaskisandshaxes.items.uselessItem
 import java.util.*
 
+fun joinVoxels(vararg shapes: VoxelShape): VoxelShape {
+    var tmp: VoxelShape = VoxelShapes.empty()
+    for (shape in shapes){
+        tmp = VoxelShapes.union(
+            tmp,
+            shape
+        )
+    }
+    return tmp
+}
+
+fun createCuboidShape(minX: Double, minY: Double, minZ: Double, sizeX: Double, sizeY: Double, sizeZ: Double): VoxelShape {
+    return VoxelShapes.cuboid(minX/16.0, minY/16.0, minZ/16.0, minX/16.0+sizeX/16.0, minY/16.0+sizeY/16.0, minZ/16.0+sizeZ/16.0)
+}
+
 class pulaskisandshaxes : ModInitializer {
     companion object {
-        private val STRUCTURES: BiMap<String, StructureFeature<*>> = HashBiMap.create()
-        private val STRUCTURE_TO_GENERATION_STEP: Map<StructureFeature<*>, GenerationStep.Feature> = Maps.newHashMap()
-        var config: bedrockBreakerConfig? = null
+        var config: configuration? = null
 
         //  _______          _
         // |__   __|        | |
@@ -57,14 +69,31 @@ class pulaskisandshaxes : ModInitializer {
         val DIAMOND_SHAXE = ShaxeItem(ToolMaterials.DIAMOND, 2, -2.8f, Item.Settings().group(ItemGroup.TOOLS).maxDamage(1561))
         val NETHERITE_PULASKI = PulaskiItem(ToolMaterials.NETHERITE, 7f, (-3).toFloat(), Item.Settings().group(ItemGroup.TOOLS).maxDamage(2031))
         val NETHERITE_SHAXE = ShaxeItem(ToolMaterials.NETHERITE, 2, -2.8f, Item.Settings().group(ItemGroup.TOOLS).maxDamage(2031))
-        val NETHERITE_PULASKI_TEST = PulaskiItem(ToolMaterials.NETHERITE, 7f, (-3).toFloat(), Item.Settings().group(ItemGroup.TOOLS).maxDamage(2031))
-        val NETHERITE_SHAXE_TEST = ShaxeItem(ToolMaterials.NETHERITE, 2, -2.8f, Item.Settings().group(ItemGroup.TOOLS).maxDamage(2031))
         val BROKEN_BEDROCK_BREAKER = uselessItem(Item.Settings().group(ItemGroup.TOOLS).fireproof().maxCount(1).maxDamage(0).rarity(Rarity.EPIC), true)
         val FUZED_CHAIN = uselessItem(Item.Settings().group(ItemGroup.MATERIALS).maxCount(1).maxDamage(0).rarity(Rarity.EPIC), false)
         val NETHER_CORE = uselessItem(Item.Settings().group(ItemGroup.MATERIALS).maxCount(1).maxDamage(0).rarity(Rarity.EPIC), true)
         val NETHERITE_CORNER = uselessItem(Item.Settings().group(ItemGroup.MATERIALS).maxCount(1).maxDamage(0).rarity(Rarity.EPIC), false)
         val NETHERITE_STICK = uselessItem(Item.Settings().group(ItemGroup.MATERIALS).fireproof().maxCount(1).maxDamage(0).rarity(Rarity.EPIC), false)
-        //val EXPOSURE = Item(Item.Settings().group(ItemGroup.MATERIALS).rarity(Rarity.COMMON).fireproof())
+
+        //
+        // Meme stuff
+        //
+        val EXPOSURE = Item(Item.Settings().group(ItemGroup.MATERIALS).rarity(Rarity.COMMON).fireproof())
+
+        val BADAPPLESHAPE = joinVoxels(
+            createCuboidShape(0.0, 10.0, 0.0, 16.0, 6.0, 16.0),
+            createCuboidShape(0.0, 0.0, 0.0, 2.0, 10.0, 2.0),
+            createCuboidShape(14.0, 0.0, 0.0, 2.0, 10.0, 2.0),
+            createCuboidShape(14.0, 0.0, 14.0, 2.0, 10.0, 2.0),
+            createCuboidShape(0.0, 0.0, 14.0, 2.0, 10.0, 2.0)
+        )
+        val BADAPPLE = UselessBlock(true, BADAPPLESHAPE, FabricBlockSettings.of(Material.STONE).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes"))).collidable(true))
+
+        //
+        // Test stuff
+        //
+        val NETHERITE_PULASKI_TEST = PulaskiItem(ToolMaterials.NETHERITE, 7f, (-3).toFloat(), Item.Settings().group(ItemGroup.TOOLS).maxDamage(2031))
+        val NETHERITE_SHAXE_TEST = ShaxeItem(ToolMaterials.NETHERITE, 2, -2.8f, Item.Settings().group(ItemGroup.TOOLS).maxDamage(2031))
 
         //  ____  _            _
         // |  _ \| |          | |
@@ -73,16 +102,16 @@ class pulaskisandshaxes : ModInitializer {
         // | |_) | | (_) | (__|   <\__ \
         // |____/|_|\___/ \___|_|\_|___/
         //
-        val WOODENPISTON = ConfigPiston(false, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "axes")), 0).collidable(true).hardness(1f).build(), 6)
-        val GOLDPISTON = ConfigPiston(false, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(1.5f).build(), 24)
-        val DIAMONDPISTON = ConfigPiston(false, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(2.5f).build(), 48)
-        val NETHERITEPISTON = ConfigPiston(false, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(5f).build(), 96)
-        val SUPERPISTON = ConfigPiston(false, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 2).collidable(true).hardness(10f).build(), 864)
-        val STICKYWOODENPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "axes")), 0).collidable(true).hardness(1f).build(), 6)
-        val STICKYGOLDPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(1.5f).build(), 24)
-        val STICKYDIAMONDPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(2.5f).build(), 48)
-        val STICKYNETHERITEPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(5f).build(), 96)
-        val STICKYSUPERPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 2).collidable(true).hardness(10f).build(), 864)
+        val WOODENPISTON = ConfigPiston(false, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "axes")), 0).collidable(true).hardness(1f), 6)
+        val GOLDPISTON = ConfigPiston(false, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(1.5f), 24)
+        val DIAMONDPISTON = ConfigPiston(false, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(2.5f), 48)
+        val NETHERITEPISTON = ConfigPiston(false, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(5f), 96)
+        val SUPERPISTON = ConfigPiston(false, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 2).collidable(true).hardness(10f), 864)
+        val STICKYWOODENPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "axes")), 0).collidable(true).hardness(1f), 6)
+        val STICKYGOLDPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(1.5f), 24)
+        val STICKYDIAMONDPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(2.5f), 48)
+        val STICKYNETHERITEPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 0).collidable(true).hardness(5f), 96)
+        val STICKYSUPERPISTON = ConfigPiston(true, FabricBlockSettings.of(Material.PISTON).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes")), 2).collidable(true).hardness(10f), 864)
     }
 
     override fun onInitialize() {
@@ -90,8 +119,8 @@ class pulaskisandshaxes : ModInitializer {
         //
         //config
         //
-        AutoConfig.register(bedrockBreakerConfig::class.java) { definition: Config?, configClass: Class<bedrockBreakerConfig?>? -> GsonConfigSerializer(definition, configClass) }
-        config = AutoConfig.getConfigHolder<bedrockBreakerConfig>(bedrockBreakerConfig::class.java).config
+        AutoConfig.register(configuration::class.java) { definition: Config?, configClass: Class<configuration?>? -> GsonConfigSerializer(definition, configClass) }
+        config = AutoConfig.getConfigHolder<configuration>(configuration::class.java).config
 
         //
         //enchants
@@ -105,7 +134,7 @@ class pulaskisandshaxes : ModInitializer {
         //
         //bedrock breaker stuff
         //
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "bedrock_breaker"), bedrockBreaker(ToolMaterials.NETHERITE, Item.Settings().group(ItemGroup.TOOLS).fireproof().maxCount(1).maxDamage(100).rarity(Rarity.EPIC), config as bedrockBreakerConfig))
+        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "bedrock_breaker"), bedrockBreaker(ToolMaterials.NETHERITE, Item.Settings().group(ItemGroup.TOOLS).fireproof().maxCount(1).maxDamage(100).rarity(Rarity.EPIC), config as configuration))
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "broken_bedrock_breaker"), BROKEN_BEDROCK_BREAKER)
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "fused_chain"), FUZED_CHAIN)
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "nether_core"), NETHER_CORE)
@@ -113,9 +142,17 @@ class pulaskisandshaxes : ModInitializer {
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "netherite_stick"), NETHERITE_STICK)
 
         //
-        //Exposure Bucks
+        // Meme stuff
         //
-        //Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "exposure_bucks"), EXPOSURE)
+        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "exposure_bucks"), EXPOSURE)
+        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "bad_apple"), BADAPPLE)
+        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "bad_apple"), BlockItem(BADAPPLE, Item.Settings().group(ItemGroup.MISC)))
+
+        //
+        // Test stuff
+        //
+        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "netherite_pulaski_test"), NETHERITE_PULASKI_TEST)
+        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "netherite_shaxe_test"), NETHERITE_SHAXE_TEST)
 
         //
         //pulaskis and shaxes
@@ -132,9 +169,6 @@ class pulaskisandshaxes : ModInitializer {
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "diamond_shaxe"), DIAMOND_SHAXE)
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "netherite_pulaski"), NETHERITE_PULASKI)
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "netherite_shaxe"), NETHERITE_SHAXE)
-
-        //Registry.register(Registry.ITEM, new Identifier("pulaskisandshaxes", "netherite_pulaski_test"), NETHERITE_PULASKI_TEST);
-        //Registry.register(Registry.ITEM, new Identifier("pulaskisandshaxes", "netherite_shaxe_test"), NETHERITE_SHAXE_TEST);
 
         //
         //pistons
@@ -159,12 +193,12 @@ class pulaskisandshaxes : ModInitializer {
         Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "sticky_super_piston"), STICKYSUPERPISTON)
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "super_piston"), BlockItem(SUPERPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "sticky_super_piston"), BlockItem(STICKYSUPERPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
+
         println("\n\n\n\npulaskisandshaxes initialized\n\n\n\n")
         val cal = Calendar.getInstance()
-        val day = cal[Calendar.DAY_OF_MONTH]
-        val month = cal[Calendar.MONTH]
-        val date = "$day/$month"
-        if (date == "1/4") {
+        val day = cal.get(Calendar.DAY_OF_MONTH)
+        val month = cal.get(Calendar.MONTH)
+        if (month == Calendar.APRIL && day == 1) {
             println("April Fools Mode Active, please view log in monospace font.")
             println("\n| |||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n            |  ||||| |  |||   |||||||||lllllllllllllllllL|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n         |||| ||||||  | |||||||||||llllll$$@@@@$$$$$$$$$$$@@l||||||||||||||||||||||||||     | ||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n    |||||||||||||||   ||||||||||lll$$$@@$$@@@@@@$$$$$$$$$$$$@@@lL|||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n       |||||||||||||  |||||||ll$$$$$$@@@@@@@$$$@@$$$$$$$$@@@@@$@@|||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n           ||||  ||   |||||lll$$\$l$$$$$$$@@@@@@@@$@@@@@@@@@@@@@$@l|||||||||||||||||           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n                 ||   ||||l$$$$$@@@@@@@@@@@@@@@@@@$$$$$$$$$@@@@@@@|||||||||||||||||          |||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n      ||      || ||     ||ll$$$$$@@@@@@@@@@@@@$$$$$$$$$$$$$@$@@@@@L|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||    ||| |  ||      |||||l$$$$$@@@@@@@$$$$$$$\$llllllll$$$$$$$@@@@L||||||||||||||  ||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n    ||||||||||||||      ||||ll$$$$$$$$$$$$$$$\$lllllllllll$$$$$$@$$@@||||||||||||||||  ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||     ||||ll$$$$$$$$$$$$$$$\$lllllllllll$$$$$$$$@@ll||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n  |||||||||||||||||||||||||||l$$$$$$$$$$$$$$$$\$lllllllllllll$$$$$$$@llll||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||l$\$l$$$$$$$$$$$$\$lllllllllllllll$$$$$@\$l||l||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||jlll$$$$$$$$$$$$$$$$$$$$$\$llllll$$$\$lll\$L|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||llll$$$$$$$$$$$$$$$&$$$$$\$llllll$\$l$\$llL|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||lll$$$$$$$$$\$llll$$$\$llllllllllllll$\$l||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||| |||||||||||||||||||||||||||l$$$$$$$$$$\$lllllll\$lllllllllllllll|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||| ||||||||||||||||||||||||||||j$$$$$$$$$\$llllllllllllllllllllll||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||||||l$$$$$$$$$\$lllll$$\$lllllllllllll|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||||||ll$$$$$$$$$$$\$llllllllllllllllll|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||ll$$$$$$$$$$\$llllllllllllllllll|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||||ll$$$$$$$$$$$@@@@\$lllllllllllllllllll|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||||||l$$$$$$@@@@@$$\$lllllllllllll$$$@@@@@@@L|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||||||||l$$$$$$$$$$\$lllllllllllll$$$$$$$$$$\$llllllll||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||||||||lll$$$$$$$$$\$lllllllll$\$ll$$$$$$$$$\$llllllllllllll||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||||||||||||$$@Wl$$$$$$$$$\$lllllllllll$$$$$$$$$$$$@@@@@@@@ggg@lll|l||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||||ll$$@@@l$$$$$$$$$$$$$\$l\$llll$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@|||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||||||ll$$@@@@@@l$$$$$$$$$$$$$$$$$\$ll$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@gg|||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||lll$$@@@@@@@@@\$l$$$$$$$$$$$$$$$\$ll$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@L|||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||l$$@@@@@@@@@@@@@@llll$$$$$$$$$$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@L||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||ll$$$@@@@@@@@@@@@@@@@@\$llllM$$$$$$$$$$$$$\$MTl$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||l$$$@@@@@@@@@@@@@@@@@@@@$$\$llllll$$$$$$$$$$\$Tlll$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ll|||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||l$$$$@@@@@@@@@@@@@@@@@@@@@@$$$\$lllllllll$$$$$\$llllll$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Llll|||||||lll|||||||||||||||||||||||||||\n||||||||||||||||ll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$\$llllllllllllllllllllll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llll||||lllll|||||||||||||||||||||||||||\n||||||||||||ll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllll@@@@@@@@@@@@@\$Mlll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllll||lllll|||||||||||||||||||||||||||\n||||||||||l$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@g$$$$\$lll$$$$$\$lllgllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllll||llllll||||||||||||||||||||||||||\n|||||||||l$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@$$$\$MMMMllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllll||||||||||||||||||||||\n||||||||ll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$gggg@@@@g@@@@@@@@l$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllll|||||||||||||||||||||||||\n||||||llll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$&MMM\$MTTTlll$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllll||||||||||||||||||||||||\n||||llllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Llllllllllllllll|l|||||||||||||||||||||\n|||||||ll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$\$TT||llllllll$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Lllllllllllll|||||||||||||||||||||||||\n|||||llll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllll||||||||||||||||||||||||\n||||lllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$\$lllllllgg$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllll|||||||||||||||||||||\nllllllllj$@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$%%$%%$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Llllllllllllllllllll||||||||||||||||\nllllllllj$@@@$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$@ggg@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllllll|||||||||||||||\nllllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$\$MMMMMM$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$Llllllllllllllllll|||||||||||||||||\n|lllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllll|||||||||||||||||||||\nllllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$MM$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$Lllllllllllllllllllllll|||||||||||\nllllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Lllllllllllllllllllllllll|||||||||\nllllllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$\$ll$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllllllllllll||||||||||\nllllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lLlllllllllllllllll||||||||||||||\n|lllllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$@@$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllll|||||||||||||\nlllllll%$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllllll|||||||||||\nlllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$llllllllllllllllllllll||||||||||\nlllllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$llllllllllllllllllllll||||||||||\nlllllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllllllllll||||||||\nllllll$$@@@@@@@@@@$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllllllll||||||\nllllll%$@@@@@@@$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllllllllllll||||\nllllll$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$lllllllllllllllllllllllllll\n|l|llll$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllllllllllllll\nllllll$$$$$$\$lllll$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllllllll\nllll$@@$$\$lllllll$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllllllllll\nllll$$@$$\$lll\$llll\$lllll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$@$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllllll\nlllllj$$$\$llllllllllllll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$llllllllllllllllllll\nlllllll$$\$lll$$\$llllllll$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$llllllllllllllllll\nllll||l$$$\$l$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllll\nllll||l$$$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$\$lllllllll\nlll|||l$$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@$$$@@@@@@@@@@@@@@@@@@@@@@@@M$$%@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$\$llll\nlllll||l$$$$$$$@@@@$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@llllM$%@@@@@@@@@@@@@@@$$$$$$$$@@@@$$$\$llll\nllllll|lll$$$@@@@@@@$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@llllllM$$@@@@@@@@@@@@$$$$$$$$$$$$$$\$lllll\nlllllllllllllMMMMMMMMM$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@llllllllllM$$@@@@@@@@@$$$$$$$$$$$$$\$lllll\nllll|ll|||llllllllllll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@llllllllllllll$$@@@@@@@$$$$$$$$$$$\$llllll\nllll||||||lllllllllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@\$llllllllllllll&$$@@$@@$$$$$$$$$$\$lllllll\nllll|lllllllllllllllll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@\$llllllllllllllllj$$@@@@$$$$$$\$llllllllll")
         }

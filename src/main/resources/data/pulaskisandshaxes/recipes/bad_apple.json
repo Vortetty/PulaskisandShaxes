@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+	"#W#",
+	"| |",
+	"| |"
+  ],
+  "key": {
+	"#": {
+	  "item": "minecraft:glass"
+	},
+	"W": {
+	  "item": "minecraft:black_dye"
+	},
+	"/": {
+	  "item": "minecraft:stick"
+	}
+  },
+  "result": {
+	"item": "pulaskisandshaxes:bad_apple",
+	"count": 1
+  }
+}
