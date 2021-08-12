@@ -33,10 +33,19 @@
     "item.pulaskisandshaxes.exposure_bucks": "Exposure",
     "block.pulaskisandshaxes.bad_apple": "Bad Apple",
 
-    "text.autoconfig.pulaskisandshaxes.option.bedrockBreakerUses": "Bedrock Breaker Uses",
-    "text.autoconfig.pulaskisandshaxes.option.doRandomDrops": "Randomize Block Drops",
-    "text.autoconfig.pulaskisandshaxes.option.doRandomPlaces": "Randomize Placed Blocks",
-    "text.autoconfig.pulaskisandshaxes.option.allowPushBlockEntities": "Allow Pushing Block Entities",
-    "text.autoconfig.pulaskisandshaxes.option.allowPushExtendedPiston": "Allow Pushing Extended Pistons",
-    "text.autoconfig.pulaskisandshaxes.title": "Pulaskis and Shaxes Config"
+    "option.pulaskisandshaxes.slider.bedrockBreakerUses": "Bedrock Breaker Uses",
+    "option.pulaskisandshaxes.slider.bedrockBreakerUses.tooltip": "How many times the bedrock breaker can be used, requires restart",
+    "option.pulaskisandshaxes.toggle.doRandomDrops": "Randomize Block Drops",
+    "option.pulaskisandshaxes.toggle.doRandomDrops.tooltip": "Whether to randomize items dropped by blocks",
+    "option.pulaskisandshaxes.toggle.doRandomPlaces": "Randomize Placed Blocks",
+    "option.pulaskisandshaxes.toggle.doRandomPlaces.tooltip": "Whether to randomize blocks on block place",
+    "option.pulaskisandshaxes.toggle.allowPushBlockEntities": "Allow Pushing Block Entities",
+    "option.pulaskisandshaxes.toggle.allowPushBlockEntities.tooltip": "Allow pistons to push block entities",
+    "option.pulaskisandshaxes.toggle.allowPushExtendedPiston": "Allow Pushing Extended Pistons",
+    "option.pulaskisandshaxes.toggle.allowPushExtendedPiston.tooltip": "Allow pistons to push other extended pistons",
+    "option.pulaskisandshaxes.defaultYesText": "Enabled",
+    "option.pulaskisandshaxes.defaultNoText": "Disabled",
+    "title.pulaskisandshaxes.config": "Pulaskis and Shaxes Config",
+    "option.pulaskisandshaxes.category.general": "General Settings",
+    "option.pulaskisandshaxes.category.random": "Randomizer Settings"
 }

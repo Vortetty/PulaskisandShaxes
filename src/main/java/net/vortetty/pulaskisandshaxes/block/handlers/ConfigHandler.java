@@ -38,7 +38,7 @@ public class ConfigHandler {
             this.posTo = pos.offset(dir);
         } else {
             this.motionDirection = dir.getOpposite();
-            this.posTo = pos.offset((Direction)dir, 2);
+            this.posTo = pos.offset(dir, 2);
         }
 
         this.limit = limit;

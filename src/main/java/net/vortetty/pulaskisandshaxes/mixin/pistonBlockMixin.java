@@ -43,10 +43,10 @@ public class pistonBlockMixin extends FacingBlock {
                                 cir.setReturnValue(direction == pistonDir);
                         }
                     } else if ((Boolean)state.get(PistonBlock.EXTENDED)) {
-                        cir.setReturnValue(pulaskisandshaxes.Companion.getConfig().getAllowPushExtendedPiston());
+                        cir.setReturnValue(pulaskisandshaxes.Companion.getConfig().getConfig().get("general_config").asObject().getBoolean("allowPushExtendedPiston", false));
                     }
 
-                    cir.setReturnValue(!state.hasBlockEntity() || pulaskisandshaxes.Companion.getConfig().getAllowPushBlockEntities());
+                    cir.setReturnValue(!state.hasBlockEntity() || pulaskisandshaxes.Companion.getConfig().getConfig().get("general_config").asObject().getBoolean("allowPushBlockEntities", false));
                 }
             } else {
                 cir.setReturnValue(false);

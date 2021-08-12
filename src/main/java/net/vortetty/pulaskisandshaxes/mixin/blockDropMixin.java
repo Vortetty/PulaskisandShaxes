@@ -19,14 +19,14 @@ import static java.lang.Math.max;
 
 @Mixin(Block.class)
 public class blockDropMixin {
-	@Overwrite()
+	@Overwrite
 	public static void dropStack(World world, BlockPos pos, ItemStack stack) {
 		if (!world.isClient && !stack.isEmpty() && world.getGameRules().getBoolean(GameRules.DO_TILE_DROPS)) {
 			float f = 0.5F;
 			double d = (double)(world.random.nextFloat() * 0.5F) + 0.25D;
 			double e = (double)(world.random.nextFloat() * 0.5F) + 0.25D;
 			double g = (double)(world.random.nextFloat() * 0.5F) + 0.25D;
-			if(pulaskisandshaxes.Companion.getConfig().getDoRandomDrops()) {
+			if(pulaskisandshaxes.Companion.getConfig().getConfig().get("random_config").asObject().getBoolean("doRandomDrops", false)) {
 				Item item = Registry.ITEM.getRandom(world.random);
 				int count = world.random.nextInt(3) + 8;
 				stack = new ItemStack(item, count);
@@ -39,7 +39,7 @@ public class blockDropMixin {
 
 	@Overwrite
 	public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-		if(pulaskisandshaxes.Companion.getConfig().getDoRandomPlaces()) {
+		if(pulaskisandshaxes.Companion.getConfig().getConfig().get("random_config").asObject().getBoolean("doRandomPlaces", false)) {
 			Block tmp = Registry.BLOCK.getRandom(world.random);
 			world.setBlockState(
 					pos, tmp.getStateManager().getStates().get(world.random.nextInt(max(1, tmp.getStateManager().getStates().size() - 1)))

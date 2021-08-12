@@ -12,14 +12,14 @@
   },
 
   "license": "CC BY-NC-SA 4.0 International",
-  "icon": "assets//logo.png",
+  "icon": "assets/pulaskisandshaxes/logo.png",
 
   "environment": "*",
   "entrypoints": {
     "modmenu": [
       {
         "adapter": "kotlin",
-        "value": "net.vortetty.pulaskisandshaxes.config.modMenuIntegration"
+        "value": "net.vortetty.pulaskisandshaxes.config.modmenuIntegration"
       }
     ],
     "client": [
