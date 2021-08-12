@@ -41,10 +41,6 @@ dependencies {
 
 	//ModMenu
 	modImplementation "com.terraformersmc:modmenu:2.0.4"
-
-	// Hjson
-	compile 'org.hjson:hjson:3.0.0'
-	include 'org.hjson:hjson:3.0.0'
 }
 
 processResources {
