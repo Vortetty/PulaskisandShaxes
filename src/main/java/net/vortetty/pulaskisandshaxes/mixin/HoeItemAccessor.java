@@ -2,7 +2,6 @@ package net.vortetty.pulaskisandshaxes.mixin;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.item.HoeItem;
 import net.minecraft.item.ItemUsageContext;
 import org.spongepowered.asm.mixin.Mixin;

@@ -45,7 +45,7 @@ class lethalityEnchant : Enchantment(Rarity.RARE, EnchantmentTarget.WEAPON, arra
         super.onUserDamaged(user, attacker, level)
     }
 
-    override fun getName(level: Int): Text? {
+    override fun getName(level: Int): Text {
         val mutableText: MutableText = TranslatableText(getTranslationKey())
         if (this.isCursed) {
             mutableText.formatted(Formatting.RED)

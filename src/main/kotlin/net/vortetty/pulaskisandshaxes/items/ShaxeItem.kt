@@ -37,7 +37,7 @@ class ShaxeItem(material: ToolMaterial, attackDamage: Int, attackSpeed: Float, s
                 if (!world.isClient) {
                     world.setBlockState(blockPos, blockState3, 11)
                     if (playerEntity != null) {
-                        context.stack.damage(1, playerEntity, { p: PlayerEntity -> p.sendToolBreakStatus(context.hand) })
+                        context.stack.damage(1, playerEntity) { p: PlayerEntity -> p.sendToolBreakStatus(context.hand) }
                     }
                 }
                 ActionResult.SUCCESS

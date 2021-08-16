@@ -6,7 +6,6 @@ import net.minecraft.block.*
 import net.minecraft.block.entity.PistonBlockEntity
 import net.minecraft.block.enums.PistonType
 import net.minecraft.block.piston.PistonBehavior
-import net.minecraft.block.piston.PistonHandler
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.pathing.NavigationType
 import net.minecraft.entity.player.PlayerEntity
@@ -28,8 +27,8 @@ import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.BlockView
 import net.minecraft.world.World
 import net.minecraft.world.event.GameEvent
+import net.vortetty.pulaskisandshaxes.PASMain
 import net.vortetty.pulaskisandshaxes.block.handlers.ConfigHandler
-import net.vortetty.pulaskisandshaxes.pulaskisandshaxes
 
 open class ConfigPiston(sticky: Boolean, settings: Settings?, limit: Int) : FacingBlock(settings) {
     private var limit: Int
@@ -228,10 +227,9 @@ open class ConfigPiston(sticky: Boolean, settings: Settings?, limit: Int) : Faci
             val blockStates = arrayOfNulls<BlockState>(list.size + list3.size)
             val direction = if (retract) dir else dir.opposite
             var j = 0
-            var l: Int
             var blockPos4: BlockPos
             var blockState9: BlockState?
-            l = list3.size - 1
+            var l: Int = list3.size - 1
             while (l >= 0) {
                 blockPos4 = list3[l] as BlockPos
                 blockState9 = world.getBlockState(blockPos4)
@@ -252,7 +250,7 @@ open class ConfigPiston(sticky: Boolean, settings: Settings?, limit: Int) : Faci
                 map.remove(blockPos4)
                 val blockState4 = Blocks.MOVING_PISTON.defaultState.with(FACING, dir) as BlockState
                 world.setBlockState(blockPos4, blockState4, NO_REDRAW or MOVED)
-                world.addBlockEntity(PistonExtensionBlock.createBlockEntityPiston(blockPos4, blockState4, list2[l] as BlockState, dir, retract, false))
+                world.addBlockEntity(PistonExtensionBlock.createBlockEntityPiston(blockPos4, blockState4, list2[l], dir, retract, false))
                 blockStates[j++] = blockState9
                 --l
             }
@@ -273,7 +271,7 @@ open class ConfigPiston(sticky: Boolean, settings: Settings?, limit: Int) : Faci
             var25 = map.entries.iterator()
             var blockPos7: BlockPos
             while (var25.hasNext()) {
-                val (key, value) = var25.next() as Map.Entry<*, *>
+                val (key, value) = var25.next()
                 blockPos7 = key as BlockPos
                 val blockState8 = value as BlockState
                 blockState8.prepare(world, blockPos7, 2)
@@ -281,13 +279,12 @@ open class ConfigPiston(sticky: Boolean, settings: Settings?, limit: Int) : Faci
                 blockState7.prepare(world, blockPos7, 2)
             }
             j = 0
-            var n: Int
-            n = list3.size - 1
+            var n: Int = list3.size - 1
             while (n >= 0) {
                 blockState9 = blockStates[j++]
                 blockPos7 = list3[n] as BlockPos
                 blockState9!!.prepare(world, blockPos7, 2)
-                world.updateNeighborsAlways(blockPos7, blockState9!!.block)
+                world.updateNeighborsAlways(blockPos7, blockState9.block)
                 --n
             }
             n = list.size - 1
@@ -359,9 +356,9 @@ open class ConfigPiston(sticky: Boolean, settings: Settings?, limit: Int) : Faci
                                 PistonBehavior.IGNORE -> true
                             }
                         } else if (state.get(EXTENDED) as Boolean) {
-                            return pulaskisandshaxes.config!!.config.get("general_config").asObject().getBoolean("allowPushExtendedPiston", false)
+                            return PASMain.config.config.get("general_config").asObject().getBoolean("allowPushExtendedPiston", false)
                         }
-                        !state.hasBlockEntity() || pulaskisandshaxes.config!!.config.get("general_config").asObject().getBoolean("allowPushBlockEntities", false)
+                        !state.hasBlockEntity() || PASMain.config.config.get("general_config").asObject().getBoolean("allowPushBlockEntities", false)
                     }
                 } else {
                     false

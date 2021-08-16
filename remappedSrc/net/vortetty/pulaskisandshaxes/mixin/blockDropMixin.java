@@ -21,7 +21,7 @@ public class blockDropMixin {
 			double d = (double)(world.random.nextFloat() * 0.5F) + 0.25D;
 			double e = (double)(world.random.nextFloat() * 0.5F) + 0.25D;
 			double g = (double)(world.random.nextFloat() * 0.5F) + 0.25D;
-			if(pulaskisandshaxes.Companion.getConfig().getDoRandomDrops()) {
+			if(pulaskisandshaxes.Companion.getConfig().getdoRandomBlockDrops()) {
 				Item item = Registry.ITEM.getRandom(world.random);
 				int count = world.random.nextInt(3) + 8;
 				stack = new ItemStack(item, count);

@@ -1,15 +1,11 @@
 package net.vortetty.pulaskisandshaxes
 
-import me.shedaniel.autoconfig.AutoConfig
-import me.shedaniel.autoconfig.annotation.Config
-import me.shedaniel.autoconfig.serializer.GsonConfigSerializer
 import net.devtech.arrp.api.RRPCallback
 import net.devtech.arrp.api.RuntimeResourcePack
 import net.devtech.arrp.json.recipe.*
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.`object`.builder.v1.block.FabricBlockSettings
 import net.fabricmc.fabric.api.tag.TagRegistry
-import net.minecraft.block.Block
 import net.minecraft.block.Material
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.BlockItem
@@ -29,8 +25,9 @@ import net.vortetty.pulaskisandshaxes.items.PulaskiItem
 import net.vortetty.pulaskisandshaxes.items.ShaxeItem
 import net.vortetty.pulaskisandshaxes.items.bedrockBreaker
 import net.vortetty.pulaskisandshaxes.items.uselessItem
-import org.hjson.Stringify
 import java.util.*
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 
 fun joinVoxels(vararg shapes: VoxelShape): VoxelShape {
     var tmp: VoxelShape = VoxelShapes.empty()
@@ -47,9 +44,26 @@ fun createCuboidShape(minX: Double, minY: Double, minZ: Double, sizeX: Double, s
     return VoxelShapes.cuboid(minX/16.0, minY/16.0, minZ/16.0, minX/16.0+sizeX/16.0, minY/16.0+sizeY/16.0, minZ/16.0+sizeZ/16.0)
 }
 
+typealias PASMain = pulaskisandshaxes
+
 class pulaskisandshaxes : ModInitializer {
     companion object {
+        var curRandValP1: ULong = 0U
+        var curRandValP2: ULong = 0U
+        var curRandValP3: ULong = 0U
+        fun getNewRandomValue(): String {
+            curRandValP1++
+            if (curRandValP1 == 0UL) {
+                curRandValP2++
+                if (curRandValP2 == 0UL) {
+                    curRandValP3++
+                }
+            }
+            return curRandValP3.toString() + curRandValP2.toString() + curRandValP1.toString()
+        }
+
         var config: configuration = configuration()
+        val logger: Logger = LogManager.getLogger("Pulaskis & Shaxes")
 
         //  _______          _
         // |__   __|        | |
@@ -88,7 +102,7 @@ class pulaskisandshaxes : ModInitializer {
             createCuboidShape(14.0, 0.0, 14.0, 2.0, 10.0, 2.0),
             createCuboidShape(0.0, 0.0, 14.0, 2.0, 10.0, 2.0)
         )
-        val BADAPPLE = UselessBlock(true, BADAPPLESHAPE, FabricBlockSettings.of(Material.STONE).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes"))).collidable(true))
+        val BADAPPLE = UselessBlock(true, BADAPPLESHAPE, FabricBlockSettings.of(Material.STONE).breakByHand(true).breakByTool(TagRegistry.item(Identifier("fabric", "pickaxes"))).collidable(true).hardness(1f))
 
         //
         // Test stuff
@@ -117,9 +131,6 @@ class pulaskisandshaxes : ModInitializer {
 
     override fun onInitialize() {
         println("\n\n\n\npulaskisandshaxes initializing\n\n\n\n")
-        config.loadConfig()
-        println("\n\n\n\n\n" + config.config.toString(Stringify.HJSON) + "\n\n\n\n\n")
-        config.initConfigObject()
         //
         //config
         //

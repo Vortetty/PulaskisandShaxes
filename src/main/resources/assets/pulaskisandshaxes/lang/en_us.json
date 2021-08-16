@@ -11,6 +11,8 @@
     "item.pulaskisandshaxes.diamond_shaxe": "Diamond Shaxe",
     "item.pulaskisandshaxes.netherite_pulaski": "Netherite Pulaski",
     "item.pulaskisandshaxes.netherite_shaxe": "Netherite Shaxe",
+    "item.pulaskisandshaxes.netherite_pulaski_test": "Test Pulaski",
+    "item.pulaskisandshaxes.netherite_shaxe_test": "Test Shaxe",
 
     "item.pulaskisandshaxes.netherite_stick": "§fNetherite Stick",
     "item.pulaskisandshaxes.netherite_corner": "§fNetherite Corner",
@@ -33,19 +35,36 @@
     "item.pulaskisandshaxes.exposure_bucks": "Exposure",
     "block.pulaskisandshaxes.bad_apple": "Bad Apple",
 
-    "option.pulaskisandshaxes.slider.bedrockBreakerUses": "Bedrock Breaker Uses",
-    "option.pulaskisandshaxes.slider.bedrockBreakerUses.tooltip": "How many times the bedrock breaker can be used, requires restart",
-    "option.pulaskisandshaxes.toggle.doRandomDrops": "Randomize Block Drops",
-    "option.pulaskisandshaxes.toggle.doRandomDrops.tooltip": "Whether to randomize items dropped by blocks",
-    "option.pulaskisandshaxes.toggle.doRandomPlaces": "Randomize Placed Blocks",
-    "option.pulaskisandshaxes.toggle.doRandomPlaces.tooltip": "Whether to randomize blocks on block place",
-    "option.pulaskisandshaxes.toggle.allowPushBlockEntities": "Allow Pushing Block Entities",
-    "option.pulaskisandshaxes.toggle.allowPushBlockEntities.tooltip": "Allow pistons to push block entities",
-    "option.pulaskisandshaxes.toggle.allowPushExtendedPiston": "Allow Pushing Extended Pistons",
-    "option.pulaskisandshaxes.toggle.allowPushExtendedPiston.tooltip": "Allow pistons to push other extended pistons",
+
+
+    "title.pulaskisandshaxes.config": "Pulaskis and Shaxes Config",
     "option.pulaskisandshaxes.defaultYesText": "Enabled",
     "option.pulaskisandshaxes.defaultNoText": "Disabled",
-    "title.pulaskisandshaxes.config": "Pulaskis and Shaxes Config",
+    "option.pulaskisandshaxes.label.spacerText": "§7 §r",
+
     "option.pulaskisandshaxes.category.general": "General Settings",
-    "option.pulaskisandshaxes.category.random": "Randomizer Settings"
+        "option.pulaskisandshaxes.slider.bedrockBreakerUses": "Bedrock Breaker Uses",
+            "option.pulaskisandshaxes.slider.bedrockBreakerUses.tooltip": "How many times the bedrock breaker can be used, requires restart",
+        "option.pulaskisandshaxes.toggle.allowPushBlockEntities": "Allow Pushing Block Entities",
+            "option.pulaskisandshaxes.toggle.allowPushBlockEntities.tooltip": "Allow pistons to push block entities",
+        "option.pulaskisandshaxes.toggle.allowPushExtendedPiston": "Allow Pushing Extended Pistons",
+            "option.pulaskisandshaxes.toggle.allowPushExtendedPiston.tooltip": "Allow pistons to push other extended pistons",
+        "option.pulaskisandshaxes.toggle.allowNestedShulkerBoxes": "Nested shulker boxes",
+            "option.pulaskisandshaxes.toggle.allowNestedShulkerBoxes.tooltip": "If enabled, allows you to put a shulker box into a shulker box",
+
+    "option.pulaskisandshaxes.category.random": "Randomizer Settings",
+        "option.pulaskisandshaxes.label.loot": "Loot Randomizer",
+        "option.pulaskisandshaxes.toggle.doAllRandomLoot": "Randomize All Loot/Drops",
+            "option.pulaskisandshaxes.toggle.doAllRandomLoot.tooltip": "Whether to randomize all drops",
+        "option.pulaskisandshaxes.subcategory.preciseControl": "Precise Control",
+        "option.pulaskisandshaxes.subcategory.preciseControl.tooltip": "Precise control of randomization as an alternative to randomizing all loot/drops",
+            "option.pulaskisandshaxes.toggle.doRandomBlockDrops": "Randomize Block Drops",
+                "option.pulaskisandshaxes.toggle.doRandomBlockDrops.tooltip": "Whether to randomize items dropped by blocks",
+            "option.pulaskisandshaxes.toggle.doRandomEntityDrops": "Randomize Block Drops",
+                "option.pulaskisandshaxes.toggle.doRandomEntityDrops.tooltip": "Whether to randomize items dropped by entities",
+        "option.pulaskisandshaxes.label.other": "Miscellaneous Randomizers",
+        "option.pulaskisandshaxes.toggle.doRandomPlaces": "Randomize Placed Blocks",
+            "option.pulaskisandshaxes.toggle.doRandomPlaces.tooltip": "Whether to randomize blocks on block place",
+        "option.pulaskisandshaxes.toggle.doRandomPotions": "Randomize Potion Effects",
+            "option.pulaskisandshaxes.toggle.doRandomPotions.tooltip": "Whether to randomize effects on potions"
 }

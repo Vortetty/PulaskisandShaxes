@@ -9,7 +9,6 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.PistonBlock;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -42,7 +41,7 @@ public class ConfigHandler {
         }
 
         this.limit = limit;
-        this.MAX_MOVABLE_BLOCKS = limit;
+        MAX_MOVABLE_BLOCKS = limit;
     }
 
     public boolean calculatePush() {
@@ -59,8 +58,7 @@ public class ConfigHandler {
         } else if (!this.tryMove(this.posTo, this.motionDirection)) {
             return false;
         } else {
-            for(int i = 0; i < this.movedBlocks.size(); ++i) {
-                BlockPos blockPos = (BlockPos)this.movedBlocks.get(i);
+            for (BlockPos blockPos : this.movedBlocks) {
                 if (isBlockSticky(this.world.getBlockState(blockPos)) && !this.tryMoveAdjacentBlock(blockPos)) {
                     return false;
                 }
@@ -130,7 +128,7 @@ public class ConfigHandler {
                         this.setMovedBlocks(j, m);
 
                         for(int n = 0; n <= m + j; ++n) {
-                            BlockPos blockPos3 = (BlockPos)this.movedBlocks.get(n);
+                            BlockPos blockPos3 = this.movedBlocks.get(n);
                             if (isBlockSticky(this.world.getBlockState(blockPos3)) && !this.tryMoveAdjacentBlock(blockPos3)) {
                                 return false;
                             }
@@ -183,8 +181,7 @@ public class ConfigHandler {
         Direction[] var3 = Direction.values();
         int var4 = var3.length;
 
-        for(int var5 = 0; var5 < var4; ++var5) {
-            Direction direction = var3[var5];
+        for (Direction direction : var3) {
             if (direction.getAxis() != this.motionDirection.getAxis()) {
                 BlockPos blockPos = pos.offset(direction);
                 BlockState blockState2 = this.world.getBlockState(blockPos);

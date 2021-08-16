@@ -8,7 +8,12 @@
     "HoeItemAccessor",
     "ShovelItemAccessor",
     "PistonHeadMixin",
-    "blockDropMixin"
+    "blockDropMixin",
+    "entityDropMixin",
+    "potionDrinkMixin",
+    "throwablePotionUseMixin",
+    "lootTableMixin",
+    "shulkerBoxMixin"
   ],
   "client": [
   ],

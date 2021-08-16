@@ -35,8 +35,8 @@
 
     "option.pulaskisandshaxes.slider.bedrockBreakerUses": "שימושים לשובר סלע",
     "option.pulaskisandshaxes.slider.bedrockBreakerUses.tooltip": "כמה פעמים ניתן להשתמש בשובר הסלעים, דורש הפעלה מחדש",
-    "option.pulaskisandshaxes.toggle.doRandomDrops": "אקראי הפלת הבלוקים",
-    "option.pulaskisandshaxes.toggle.doRandomDrops.tooltip": "האם להאקראי דברים שנפל על ידי הבלוקים",
+    "option.pulaskisandshaxes.toggle.doRandomBlockDrops": "אקראי הפלת הבלוקים",
+    "option.pulaskisandshaxes.toggle.doRandomBlockDrops.tooltip": "האם להאקראי דברים שנפל על ידי הבלוקים",
     "option.pulaskisandshaxes.toggle.doRandomPlaces": "אקראי בלוקים ממוקמים",
     "option.pulaskisandshaxes.toggle.doRandomPlaces.tooltip": "האם לאקראי בלוקים בעת הצבתם",
     "option.pulaskisandshaxes.toggle.allowPushBlockEntities": "אפשר לדחוף בלוק ישויות",

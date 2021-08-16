@@ -17,14 +17,13 @@ import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.explosion.Explosion
-import net.vortetty.pulaskisandshaxes.config.configuration
-import net.vortetty.pulaskisandshaxes.pulaskisandshaxes
+import net.vortetty.pulaskisandshaxes.PASMain
 import java.util.*
 
 class bedrockBreaker(material: ToolMaterial?, settings: Settings?) : ToolItem(material, settings) {
     private var maxDamage: Int = 0
         @JvmName("getMaxDamage1") get
-    var rand = Random()
+    private var rand = Random()
 
     @Environment(EnvType.CLIENT)
     override fun getName(): Text {
@@ -62,11 +61,11 @@ class bedrockBreaker(material: ToolMaterial?, settings: Settings?) : ToolItem(ma
                 world.addParticle(ParticleTypes.EXPLOSION, pos.x + 0.5 + rand.nextFloat() * 0.25, pos.y + 0.5 + rand.nextFloat() * 0.25, pos.z + 0.5 + rand.nextFloat() * 0.25, 0.0, 0.0, 0.0)
                 world.addParticle(ParticleTypes.EXPLOSION, pos.x + 0.5 + rand.nextFloat() * 0.25, pos.y + 0.5 + rand.nextFloat() * 0.25, pos.z + 0.5 + rand.nextFloat() * 0.25, 0.0, 0.0, 0.0)
                 world.addParticle(ParticleTypes.EXPLOSION, pos.x + 0.5 + rand.nextFloat() * 0.25, pos.y + 0.5 + rand.nextFloat() * 0.25, pos.z + 0.5 + rand.nextFloat() * 0.25, 0.0, 0.0, 0.0)
-                if (stack.damage >= this.maxDamage - this.maxDamage / pulaskisandshaxes.config.config.getInt("bedrockBreakerUses", 10) && playerEntity != null && !playerEntity.isCreative) {
-                    playerEntity.setStackInHand(Hand.MAIN_HAND, ItemStack(pulaskisandshaxes.BROKEN_BEDROCK_BREAKER))
+                if (stack.damage >= this.maxDamage - this.maxDamage / PASMain.config.config.getInt("bedrockBreakerUses", 10) && playerEntity != null && !playerEntity.isCreative) {
+                    playerEntity.setStackInHand(Hand.MAIN_HAND, ItemStack(PASMain.BROKEN_BEDROCK_BREAKER))
                 }
                 if (playerEntity != null && !playerEntity.isCreative) {
-                    playerEntity.getStackInHand(Hand.MAIN_HAND).damage = this.maxDamage / pulaskisandshaxes.config.config.getInt("bedrockBreakerUses", 10) + playerEntity.getStackInHand(Hand.MAIN_HAND).damage
+                    playerEntity.getStackInHand(Hand.MAIN_HAND).damage = this.maxDamage / PASMain.config.config.getInt("bedrockBreakerUses", 10) + playerEntity.getStackInHand(Hand.MAIN_HAND).damage
                 }
             }
         }
@@ -76,6 +75,6 @@ class bedrockBreaker(material: ToolMaterial?, settings: Settings?) : ToolItem(ma
     }
 
     init {
-        this.maxDamage = pulaskisandshaxes.config.config.getInt("bedrockBreakerUses", 10)*10
+        this.maxDamage = PASMain.config.config.getInt("bedrockBreakerUses", 10)*10
     }
 }

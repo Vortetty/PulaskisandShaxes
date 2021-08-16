@@ -1,59 +1,53 @@
 package net.vortetty.pulaskisandshaxes.config
 
 import com.sun.jdi.InvalidTypeException
+import me.shedaniel.clothconfig2.api.AbstractConfigListEntry
 import me.shedaniel.clothconfig2.api.ConfigBuilder
 import me.shedaniel.clothconfig2.api.ConfigCategory
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder
+import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry
+import me.shedaniel.clothconfig2.gui.entries.IntegerSliderEntry
+import me.shedaniel.clothconfig2.gui.entries.SubCategoryListEntry
+import me.shedaniel.clothconfig2.gui.entries.TextListEntry
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import org.hjson.JsonArray
 import org.hjson.JsonObject
 import org.hjson.Stringify
-import java.io.*
+import java.io.FileNotFoundException
+import java.io.FileReader
+import java.io.FileWriter
+import java.io.IOException
 
-
-/*
-@Config(name = "pulaskisandshaxes")
-class configuration : PartitioningSerializer.GlobalData() {
-    var bedrockBreakerUses = 10
-    var allowPushBlockEntities = false
-    var allowPushExtendedPiston = false
-
-    @ConfigEntry.Category("module_a")
-    @ConfigEntry.Gui.TransitiveObject
-    var randomizerConfig: randomizers = randomizers()
-}
-
-@Config(name = "pulaskisandshaxes_randomizers")
-class randomizers : ConfigData {
-    var doRandomDrops = false
-    var doRandomPlaces = false
-}
-*/
-
-fun addIntSlider(config: JsonObject, category: ConfigCategory, entryBuilder: ConfigEntryBuilder, name: String, min: Int, max: Int, default: Int, needsRestart: Boolean=false) {
+fun addIntSlider(config: JsonObject, category: ConfigCategory?=null, entryBuilder: ConfigEntryBuilder, name: String, min: Int, max: Int, default: Int, needsRestart: Boolean=false): IntegerSliderEntry {
     val entry = entryBuilder.startIntSlider(TranslatableText("option.pulaskisandshaxes.slider.$name"), config.getInt(name, default), min, max)
         .setDefaultValue(default)
         .setMin(min)
         .setMax(max)
         .setTooltip(TranslatableText("option.pulaskisandshaxes.slider.$name.tooltip"))
         .setSaveConsumer { newValue: Int -> config.set(name, newValue) }
+    var tmp: IntegerSliderEntry? = null
 
     if (needsRestart){
-        category.addEntry(
-            entry.requireRestart().build()
-        )
+        tmp = entry.requireRestart().build()
+        if (category != null) {
+            category.addEntry(
+                tmp
+            )
+        }
     } else {
-        category.addEntry(
-            entry.build()
-        )
+        tmp = entry.build()
+        if (category != null) {
+            category.addEntry(
+                tmp
+            )
+        }
     }
+
+    return tmp
 }
 
-fun addBool(config: JsonObject, category: ConfigCategory, entryBuilder: ConfigEntryBuilder, name: String, default: Boolean, needsRestart: Boolean=false, yesNoText: ((Boolean) -> Text)?=null) {
-    var yesNoTextSupplier: ((Boolean) -> Text)? = { b: Boolean -> if (b) TranslatableText("option.pulaskisandshaxes.defaultYesText") else TranslatableText("option.pulaskisandshaxes.defaultNoText") }
-    if (yesNoText!=null)
-        yesNoTextSupplier = yesNoText
+fun addBool(config: JsonObject, category: ConfigCategory?=null, entryBuilder: ConfigEntryBuilder, name: String, default: Boolean, needsRestart: Boolean=false, yesNoText: ((Boolean) -> Text)?=null): BooleanListEntry {
     val entry = entryBuilder.startBooleanToggle(TranslatableText("option.pulaskisandshaxes.toggle.$name"), config.getBoolean(name, default))
         .setDefaultValue(default)
         .setTooltip(TranslatableText("option.pulaskisandshaxes.toggle.$name.tooltip"))
@@ -67,16 +61,52 @@ fun addBool(config: JsonObject, category: ConfigCategory, entryBuilder: ConfigEn
             else
                 yesNoText
         )
+    var tmp: BooleanListEntry? = null
 
     if (needsRestart){
-        category.addEntry(
-            entry.requireRestart().build()
-        )
+        tmp = entry.requireRestart().build()
+        if (category != null) {
+            category.addEntry(
+                tmp
+            )
+        }
     } else {
-        category.addEntry(
-            entry.build()
-        )
+        tmp = entry.build()
+        if (category != null) {
+            category.addEntry(
+                tmp
+            )
+        }
     }
+
+    return tmp
+}
+
+fun addSpacer(category: ConfigCategory?=null, entryBuilder: ConfigEntryBuilder): TextListEntry {
+    val entry = entryBuilder.startTextDescription(TranslatableText("option.pulaskisandshaxes.label.spacerText")).build()
+    if (category != null) {
+        category.addEntry(entry)
+    }
+    return entry
+}
+fun addLabel(category: ConfigCategory?=null, entryBuilder: ConfigEntryBuilder, name: String): TextListEntry {
+    val entry = entryBuilder.startTextDescription(TranslatableText("option.pulaskisandshaxes.label.$name")).build()
+    if (category != null) {
+        category.addEntry(entry)
+    }
+    return entry
+}
+
+fun addSubcategory(category: ConfigCategory?=null, entryBuilder: ConfigEntryBuilder, name: String, vararg entries: AbstractConfigListEntry<*>): SubCategoryListEntry {
+    return addSubcategory(category, entryBuilder, name, entries.asList())
+}
+fun addSubcategory(category: ConfigCategory?=null, entryBuilder: ConfigEntryBuilder, name: String, entries: List<AbstractConfigListEntry<*>>): SubCategoryListEntry {
+    val entry = entryBuilder.startSubCategory(TranslatableText("option.pulaskisandshaxes.subcategory.$name"), entries)
+        .setTooltip(TranslatableText("option.pulaskisandshaxes.subcategory.$name.tooltip")).build()
+    if (category != null) {
+        category.addEntry(entry)
+    }
+    return entry
 }
 
 class configuration {
@@ -99,13 +129,25 @@ class configuration {
             config.writeTo(fileWriter, Stringify.HJSON)
             fileWriter.close()
         }
+        builder.setTransparentBackground(true)
+        builder.setShouldListSmoothScroll(true)
+        builder.setShouldTabsSmoothScroll(true)
 
         addIntSlider(general_config, generalSettings, entryBuilder, "bedrockBreakerUses", 1, 100, 10)
         addBool(general_config, generalSettings, entryBuilder, "allowPushBlockEntities", false)
         addBool(general_config, generalSettings, entryBuilder, "allowPushExtendedPiston", false)
+        addBool(general_config, generalSettings, entryBuilder, "allowNestedShulkerBoxes", false)
 
-        addBool(random_config, randomSettings, entryBuilder, "doRandomDrops", false)
+        addLabel(randomSettings, entryBuilder, "loot")
+        addBool(random_config, randomSettings, entryBuilder, "doAllRandomLoot", false)
+        addSubcategory(randomSettings, entryBuilder, "preciseControl",
+            addBool(random_config, null, entryBuilder, "doRandomBlockDrops", false),
+            addBool(random_config, null, entryBuilder, "doRandomEntityDrops", false)
+        )
+        addSpacer(randomSettings, entryBuilder)
+        addLabel(randomSettings, entryBuilder, "other")
         addBool(random_config, randomSettings, entryBuilder, "doRandomPlaces", false)
+        addBool(random_config, randomSettings, entryBuilder, "doRandomPotions", false)
     }
 
     @Throws(IOException::class)
@@ -119,7 +161,7 @@ class configuration {
         config = JsonObject.readHjson(configFile.readText()).asObject()
     }
 
-    fun initConfigObject() {
+    private fun initConfigObject() {
         loadConfig()
 
         general_config = addConfigOptionIfMissing(config, "general_config", JsonObject())!!
@@ -128,9 +170,13 @@ class configuration {
         addConfigOptionIfMissing(general_config, "bedrockBreakerUses", 10)
         addConfigOptionIfMissing(general_config, "allowPushBlockEntities", false)
         addConfigOptionIfMissing(general_config, "allowPushExtendedPiston", false)
+        addConfigOptionIfMissing(general_config, "allowNestedShulkerBoxes", false)
 
-        addConfigOptionIfMissing(random_config, "doRandomDrops", false)
+        addConfigOptionIfMissing(random_config, "doAllRandomLoot", false)
+        addConfigOptionIfMissing(random_config, "doRandomBlockDrops", false)
+        addConfigOptionIfMissing(random_config, "doRandomEntityDrops", false)
         addConfigOptionIfMissing(random_config, "doRandomPlaces", false)
+        addConfigOptionIfMissing(random_config, "doRandomPotions", false)
 
 
         val fileWriter: FileWriter = try {
@@ -143,6 +189,7 @@ class configuration {
         fileWriter.close()
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T> addConfigOptionIfMissing(jsonObject: JsonObject, name: String, default: T): T? {
         try {
             when (default) {
@@ -177,5 +224,6 @@ class configuration {
     }
 
     init {
+        initConfigObject()
     }
 }

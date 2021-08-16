@@ -4,12 +4,10 @@ import net.minecraft.block.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
 import net.vortetty.pulaskisandshaxes.pulaskisandshaxes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PistonBlock.class)
@@ -42,7 +40,7 @@ public class pistonBlockMixin extends FacingBlock {
                             case PUSH_ONLY:
                                 cir.setReturnValue(direction == pistonDir);
                         }
-                    } else if ((Boolean)state.get(PistonBlock.EXTENDED)) {
+                    } else if (state.get(PistonBlock.EXTENDED)) {
                         cir.setReturnValue(pulaskisandshaxes.Companion.getConfig().getConfig().get("general_config").asObject().getBoolean("allowPushExtendedPiston", false));
                     }
 
