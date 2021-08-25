@@ -1,12 +1,28 @@
 package net.vortetty.pulaskisandshaxes
 
+import com.sun.jdi.InvalidTypeException
 import net.devtech.arrp.api.RRPCallback
 import net.devtech.arrp.api.RuntimeResourcePack
+import net.devtech.arrp.json.lang.JLang
+import net.devtech.arrp.json.loot.JEntry
+import net.devtech.arrp.json.loot.JLootTable
+import net.devtech.arrp.json.loot.JPool
 import net.devtech.arrp.json.recipe.*
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.`object`.builder.v1.block.FabricBlockSettings
+import net.fabricmc.fabric.api.`object`.builder.v1.block.entity.FabricBlockEntityTypeBuilder
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry
+import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes
 import net.fabricmc.fabric.api.tag.TagRegistry
+import net.fabricmc.fabric.mixin.`object`.builder.AbstractBlockAccessor
+import net.minecraft.block.AbstractBlock
+import net.minecraft.block.Block
 import net.minecraft.block.Material
+import net.minecraft.client.particle.SpriteProvider
+import net.minecraft.client.particle.doorParticle
+import net.minecraft.client.texture.Sprite
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
@@ -14,20 +30,23 @@ import net.minecraft.item.ItemGroup
 import net.minecraft.item.ToolMaterials
 import net.minecraft.util.Identifier
 import net.minecraft.util.Rarity
+import net.minecraft.util.registry.DefaultedRegistry
 import net.minecraft.util.registry.Registry
 import net.minecraft.util.shape.VoxelShape
 import net.minecraft.util.shape.VoxelShapes
-import net.vortetty.pulaskisandshaxes.block.ConfigPiston
-import net.vortetty.pulaskisandshaxes.block.UselessBlock
+import net.vortetty.pulaskisandshaxes.block.*
 import net.vortetty.pulaskisandshaxes.config.configuration
 import net.vortetty.pulaskisandshaxes.enchant.lethalityEnchant
 import net.vortetty.pulaskisandshaxes.items.PulaskiItem
 import net.vortetty.pulaskisandshaxes.items.ShaxeItem
 import net.vortetty.pulaskisandshaxes.items.bedrockBreaker
 import net.vortetty.pulaskisandshaxes.items.uselessItem
-import java.util.*
+import net.vortetty.pulaskisandshaxes.mixin.abstractBlockAccessor
+import net.vortetty.pulaskisandshaxes.mixin.itemSettingsAccessor
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.util.*
+
 
 fun joinVoxels(vararg shapes: VoxelShape): VoxelShape {
     var tmp: VoxelShape = VoxelShapes.empty()
@@ -45,6 +64,47 @@ fun createCuboidShape(minX: Double, minY: Double, minZ: Double, sizeX: Double, s
 }
 
 typealias PASMain = pulaskisandshaxes
+
+val RESOURCE_PACK = RuntimeResourcePack.create("pulaskisandshaxes:resources")
+
+class registerBlockRet <T : Block> (blk: T, itm: Item?) {
+    val block: T
+    val item: Item?
+
+    init {
+        this.block = blk
+        this.item = itm
+    }
+}
+
+fun <T : Block> registerBlock(id: Identifier, entry: T, createBlockitem: Boolean=true, settingsBase: Item.Settings=Item.Settings(), group: ItemGroup?=null, dropsSelf: Boolean=true): registerBlockRet<T> {
+    var blk: T? = null
+    var itm: Item? = null
+
+    if (dropsSelf && !createBlockitem) throw InvalidTypeException("When dropping self a blockitem is needed")
+
+    if (createBlockitem) {
+        if (group == null && (settingsBase as itemSettingsAccessor).group == null) throw InvalidTypeException("When creating a blockitem, an item group is needed")
+        itm = Registry.register(Registry.ITEM, id, BlockItem(entry, Item.Settings().group(group)))
+
+        if (dropsSelf) {
+            RESOURCE_PACK.addLootTable(
+                Identifier(id.namespace, "block/" + id.path),
+                JLootTable("minecraft:block").pool(
+                    JPool().rolls(1).entry(
+                        JEntry().weight(1).type("item").name(id.toString())
+                    )
+                )
+            )
+
+            (entry as abstractBlockAccessor).lootTableId = Identifier(id.namespace, "block/" + id.path)
+        }
+    }
+
+    blk = Registry.register(Registry.BLOCK, id, entry)
+
+    return registerBlockRet(blk, itm)
+}
 
 class pulaskisandshaxes : ModInitializer {
     companion object {
@@ -109,6 +169,11 @@ class pulaskisandshaxes : ModInitializer {
         //
         val NETHERITE_PULASKI_TEST = PulaskiItem(ToolMaterials.NETHERITE, 7f, (-3).toFloat(), Item.Settings().group(ItemGroup.TOOLS).maxDamage(2031))
         val NETHERITE_SHAXE_TEST = ShaxeItem(ToolMaterials.NETHERITE, 2, -2.8f, Item.Settings().group(ItemGroup.TOOLS).maxDamage(2031))
+        val MAGIC_DOOR = magicDoor(FabricBlockSettings.of(Material.STONE).hardness(4.0f).luminance(1).nonOpaque())
+        val OPEN_MAGIC_DOOR = openMagicDoor(FabricBlockSettings.of(Material.STONE).hardness(4.0f).collidable(false).luminance(1).nonOpaque().dropsLike(MAGIC_DOOR))
+        val MAGIC_DOOR_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, Identifier("pulaskisandshaxes", "magic_door_block_entity"), FabricBlockEntityTypeBuilder.create<openMagicDoorBlockEntity>(FabricBlockEntityTypeBuilder.Factory<openMagicDoorBlockEntity>(::openMagicDoorBlockEntity), OPEN_MAGIC_DOOR).build(null))
+        val MAGIC_DOOR_PARTICLE = FabricParticleTypes.simple()
+        val MAGIC_DOOR_PARTICLE_TYPE = Registry.register(Registry.PARTICLE_TYPE, Identifier("pulaskisandshaxes", "magic_door_particle"), MAGIC_DOOR_PARTICLE)
 
         //  ____  _            _
         // |  _ \| |          | |
@@ -160,14 +225,16 @@ class pulaskisandshaxes : ModInitializer {
         // Meme stuff
         //
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "exposure_bucks"), EXPOSURE)
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "bad_apple"), BADAPPLE)
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "bad_apple"), BlockItem(BADAPPLE, Item.Settings().group(ItemGroup.MISC)))
+        registerBlock(Identifier("pulaskisandshaxes", "bad_apple"), BADAPPLE, group=ItemGroup.MISC)
 
         //
         // Test stuff
         //
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "netherite_pulaski_test"), NETHERITE_PULASKI_TEST)
         Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "netherite_shaxe_test"), NETHERITE_SHAXE_TEST)
+        registerBlock(Identifier("pulaskisandshaxes", "magic_door"), MAGIC_DOOR, group=ItemGroup.DECORATIONS)
+        registerBlock(Identifier("pulaskisandshaxes", "open_magic_door"), OPEN_MAGIC_DOOR, createBlockitem=false, dropsSelf=false)
+        ParticleFactoryRegistry.getInstance().register(MAGIC_DOOR_PARTICLE_TYPE, doorParticle::doorParticleFactory)
 
         //
         //pulaskis and shaxes
@@ -188,26 +255,16 @@ class pulaskisandshaxes : ModInitializer {
         //
         //pistons
         //
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "wooden_piston"), WOODENPISTON)
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "sticky_wooden_piston"), STICKYWOODENPISTON)
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "wooden_piston"), BlockItem(WOODENPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "sticky_wooden_piston"), BlockItem(STICKYWOODENPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "gold_piston"), GOLDPISTON)
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "sticky_gold_piston"), STICKYGOLDPISTON)
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "gold_piston"), BlockItem(GOLDPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "sticky_gold_piston"), BlockItem(STICKYGOLDPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "diamond_piston"), DIAMONDPISTON)
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "sticky_diamond_piston"), STICKYDIAMONDPISTON)
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "diamond_piston"), BlockItem(DIAMONDPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "sticky_diamond_piston"), BlockItem(STICKYDIAMONDPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "netherite_piston"), NETHERITEPISTON)
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "sticky_netherite_piston"), STICKYNETHERITEPISTON)
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "netherite_piston"), BlockItem(NETHERITEPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "sticky_netherite_piston"), BlockItem(STICKYNETHERITEPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "super_piston"), SUPERPISTON)
-        Registry.register(Registry.BLOCK, Identifier("pulaskisandshaxes", "sticky_super_piston"), STICKYSUPERPISTON)
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "super_piston"), BlockItem(SUPERPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
-        Registry.register(Registry.ITEM, Identifier("pulaskisandshaxes", "sticky_super_piston"), BlockItem(STICKYSUPERPISTON, Item.Settings().group(ItemGroup.REDSTONE)))
+        registerBlock(Identifier("pulaskisandshaxes", "wooden_piston"), WOODENPISTON, group=ItemGroup.REDSTONE)
+        registerBlock(Identifier("pulaskisandshaxes", "sticky_wooden_piston"), STICKYWOODENPISTON, group=ItemGroup.REDSTONE)
+        registerBlock(Identifier("pulaskisandshaxes", "gold_piston"), GOLDPISTON, group=ItemGroup.REDSTONE)
+        registerBlock(Identifier("pulaskisandshaxes", "sticky_gold_piston"), STICKYGOLDPISTON, group=ItemGroup.REDSTONE)
+        registerBlock(Identifier("pulaskisandshaxes", "diamond_piston"), DIAMONDPISTON, group=ItemGroup.REDSTONE)
+        registerBlock(Identifier("pulaskisandshaxes", "sticky_diamond_piston"), STICKYDIAMONDPISTON, group=ItemGroup.REDSTONE)
+        registerBlock(Identifier("pulaskisandshaxes", "netherite_piston"), NETHERITEPISTON, group=ItemGroup.REDSTONE)
+        registerBlock(Identifier("pulaskisandshaxes", "sticky_netherite_piston"), STICKYNETHERITEPISTON, group=ItemGroup.REDSTONE)
+        registerBlock(Identifier("pulaskisandshaxes", "super_piston"), SUPERPISTON, group=ItemGroup.REDSTONE)
+        registerBlock(Identifier("pulaskisandshaxes", "sticky_super_piston"), STICKYSUPERPISTON, group=ItemGroup.REDSTONE)
 
         println("\n\n\n\npulaskisandshaxes initialized\n\n\n\n")
         val cal = Calendar.getInstance()
@@ -217,7 +274,6 @@ class pulaskisandshaxes : ModInitializer {
             println("April Fools Mode Active, please view log in monospace font.")
             println("\n| |||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n            |  ||||| |  |||   |||||||||lllllllllllllllllL|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n         |||| ||||||  | |||||||||||llllll$$@@@@$$$$$$$$$$$@@l||||||||||||||||||||||||||     | ||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n    |||||||||||||||   ||||||||||lll$$$@@$$@@@@@@$$$$$$$$$$$$@@@lL|||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n       |||||||||||||  |||||||ll$$$$$$@@@@@@@$$$@@$$$$$$$$@@@@@$@@|||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n           ||||  ||   |||||lll$$\$l$$$$$$$@@@@@@@@$@@@@@@@@@@@@@$@l|||||||||||||||||           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n                 ||   ||||l$$$$$@@@@@@@@@@@@@@@@@@$$$$$$$$$@@@@@@@|||||||||||||||||          |||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n      ||      || ||     ||ll$$$$$@@@@@@@@@@@@@$$$$$$$$$$$$$@$@@@@@L|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||    ||| |  ||      |||||l$$$$$@@@@@@@$$$$$$$\$llllllll$$$$$$$@@@@L||||||||||||||  ||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n    ||||||||||||||      ||||ll$$$$$$$$$$$$$$$\$lllllllllll$$$$$$@$$@@||||||||||||||||  ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||     ||||ll$$$$$$$$$$$$$$$\$lllllllllll$$$$$$$$@@ll||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n  |||||||||||||||||||||||||||l$$$$$$$$$$$$$$$$\$lllllllllllll$$$$$$$@llll||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||l$\$l$$$$$$$$$$$$\$lllllllllllllll$$$$$@\$l||l||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||jlll$$$$$$$$$$$$$$$$$$$$$\$llllll$$$\$lll\$L|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||llll$$$$$$$$$$$$$$$&$$$$$\$llllll$\$l$\$llL|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||lll$$$$$$$$$\$llll$$$\$llllllllllllll$\$l||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||| |||||||||||||||||||||||||||l$$$$$$$$$$\$lllllll\$lllllllllllllll|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||| ||||||||||||||||||||||||||||j$$$$$$$$$\$llllllllllllllllllllll||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||||||l$$$$$$$$$\$lllll$$\$lllllllllllll|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||||||ll$$$$$$$$$$$\$llllllllllllllllll|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||ll$$$$$$$$$$\$llllllllllllllllll|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||||ll$$$$$$$$$$$@@@@\$lllllllllllllllllll|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||||||l$$$$$$@@@@@$$\$lllllllllllll$$$@@@@@@@L|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||||||||l$$$$$$$$$$\$lllllllllllll$$$$$$$$$$\$llllllll||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||||||||lll$$$$$$$$$\$lllllllll$\$ll$$$$$$$$$\$llllllllllllll||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||||||||||||$$@Wl$$$$$$$$$\$lllllllllll$$$$$$$$$$$$@@@@@@@@ggg@lll|l||||||||||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||||||||ll$$@@@l$$$$$$$$$$$$$\$l\$llll$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@|||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||||||ll$$@@@@@@l$$$$$$$$$$$$$$$$$\$ll$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@gg|||||||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||||lll$$@@@@@@@@@\$l$$$$$$$$$$$$$$$\$ll$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@L|||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||||||l$$@@@@@@@@@@@@@@llll$$$$$$$$$$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@L||||||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||||||||ll$$$@@@@@@@@@@@@@@@@@\$llllM$$$$$$$$$$$$$\$MTl$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||l$$$@@@@@@@@@@@@@@@@@@@@$$\$llllll$$$$$$$$$$\$Tlll$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ll|||||||||||||||||||||||||||||||||||||||\n||||||||||||||||||||l$$$$@@@@@@@@@@@@@@@@@@@@@@$$$\$lllllllll$$$$$\$llllll$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Llll|||||||lll|||||||||||||||||||||||||||\n||||||||||||||||ll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$\$llllllllllllllllllllll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llll||||lllll|||||||||||||||||||||||||||\n||||||||||||ll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllll@@@@@@@@@@@@@\$Mlll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllll||lllll|||||||||||||||||||||||||||\n||||||||||l$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@g$$$$\$lll$$$$$\$lllgllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllll||llllll||||||||||||||||||||||||||\n|||||||||l$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@$$$\$MMMMllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllll||||||||||||||||||||||\n||||||||ll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$gggg@@@@g@@@@@@@@l$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllll|||||||||||||||||||||||||\n||||||llll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$&MMM\$MTTTlll$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllll||||||||||||||||||||||||\n||||llllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Llllllllllllllll|l|||||||||||||||||||||\n|||||||ll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$\$TT||llllllll$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Lllllllllllll|||||||||||||||||||||||||\n|||||llll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllll||||||||||||||||||||||||\n||||lllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$\$lllllllgg$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllll|||||||||||||||||||||\nllllllllj$@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$%%$%%$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Llllllllllllllllllll||||||||||||||||\nllllllllj$@@@$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$@ggg@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllllll|||||||||||||||\nllllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$\$MMMMMM$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$Llllllllllllllllll|||||||||||||||||\n|lllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllll|||||||||||||||||||||\nllllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$MM$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$Lllllllllllllllllllllll|||||||||||\nllllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Lllllllllllllllllllllllll|||||||||\nllllllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$\$ll$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllllllllllll||||||||||\nllllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lLlllllllllllllllll||||||||||||||\n|lllllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$@@$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllll|||||||||||||\nlllllll%$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllllll|||||||||||\nlllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$llllllllllllllllllllll||||||||||\nlllllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$llllllllllllllllllllll||||||||||\nlllllll$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllllllllll||||||||\nllllll$$@@@@@@@@@@$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllllllll||||||\nllllll%$@@@@@@@$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllllllllllll||||\nllllll$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$lllllllllllllllllllllllllll\n|l|llll$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllllllllllllll\nllllll$$$$$$\$lllll$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllllllll\nllll$@@$$\$lllllll$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@llllllllllllllllllllll\nllll$$@$$\$lll\$llll\$lllll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$@$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllllllllll\nlllllj$$$\$llllllllllllll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$llllllllllllllllllll\nlllllll$$\$lll$$\$llllllll$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\$llllllllllllllllll\nllll||l$$$\$l$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@lllllllllllllll\nllll||l$$$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$\$lllllllll\nlll|||l$$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$@@@@@@@@$$$@@@@@@@@@@@@@@@@@@@@@@@@M$$%@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$\$llll\nlllll||l$$$$$$$@@@@$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@llllM$%@@@@@@@@@@@@@@@$$$$$$$$@@@@$$$\$llll\nllllll|lll$$$@@@@@@@$$$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@@@llllllM$$@@@@@@@@@@@@$$$$$$$$$$$$$$\$lllll\nlllllllllllllMMMMMMMMM$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@@@@llllllllllM$$@@@@@@@@@$$$$$$$$$$$$$\$lllll\nllll|ll|||llllllllllll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@llllllllllllll$$@@@@@@@$$$$$$$$$$$\$llllll\nllll||||||lllllllllllll$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@@@\$llllllllllllll&$$@@$@@$$$$$$$$$$\$lllllll\nllll|lllllllllllllllll$$$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@@@\$llllllllllllllllj$$@@@@$$$$$$\$llllllllll")
         }
-        val RESOURCE_PACK = RuntimeResourcePack.create("pulaskisandshaxes:test_resources")
         //
         //wood
         //
@@ -398,5 +454,21 @@ class pulaskisandshaxes : ModInitializer {
         //register pack
         //
         RRPCallback.EVENT.register(RRPCallback { a -> a.add(RESOURCE_PACK) })
+    }
+
+    @Environment(EnvType.CLIENT)
+    class SimpleSpriteProvider internal constructor() : SpriteProvider {
+        private var sprites: List<Sprite>? = null
+        override fun getSprite(i: Int, j: Int): Sprite {
+            return sprites!![i * (sprites!!.size - 1) / j]
+        }
+
+        override fun getSprite(random: Random): Sprite {
+            return sprites!![random.nextInt(sprites!!.size)]
+        }
+
+        fun setSprites(sprites: List<Sprite>) {
+            this.sprites = listOf(*sprites.toTypedArray())
+        }
     }
 }

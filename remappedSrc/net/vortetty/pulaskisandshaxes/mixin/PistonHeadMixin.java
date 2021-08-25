@@ -18,9 +18,9 @@ public class PistonHeadMixin extends FacingBlock {
 		super(settings);
 	}
 	
-	@Inject(method = "canPlaceAt",at = @At("RETURN"),cancellable = true)
+	@Inject(method = "canPlaceAt", at = @At("RETURN"), cancellable = true)
 	private void mixin(BlockState state, WorldView world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-		BlockState block = world.getBlockState(pos.offset(((Direction)state.get(FACING)).getOpposite()));
+		BlockState block = world.getBlockState(pos.offset(state.get(FACING).getOpposite()));
 		cir.setReturnValue(block.getMaterial()==Material.PISTON);
 	}
 }

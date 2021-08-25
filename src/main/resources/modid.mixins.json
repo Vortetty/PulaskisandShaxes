@@ -13,7 +13,9 @@
     "potionDrinkMixin",
     "throwablePotionUseMixin",
     "lootTableMixin",
-    "shulkerBoxMixin"
+    "shulkerBoxMixin",
+    "itemSettingsAccessor",
+    "abstractBlockAccessor"
   ],
   "client": [
   ],

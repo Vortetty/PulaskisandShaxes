@@ -29,6 +29,8 @@ import net.minecraft.world.World
 import net.minecraft.world.event.GameEvent
 import net.vortetty.pulaskisandshaxes.PASMain
 import net.vortetty.pulaskisandshaxes.block.handlers.ConfigHandler
+import net.vortetty.pulaskisandshaxes.pulaskisandshaxes.Companion.config
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable
 
 open class ConfigPiston(sticky: Boolean, settings: Settings?, limit: Int) : FacingBlock(settings) {
     private var limit: Int
